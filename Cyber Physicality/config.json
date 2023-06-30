@@ -1,0 +1,48 @@
+{
+    "Groups": [
+    {
+        "Name": "Main",
+        "DisplayName": "Configuration",
+        "Elements": [
+            {
+                "Name": "IncludeDir0",
+            "DisplayName": "Difficulty",
+            "Description": [
+                "How hard do you want the game?"
+            ],
+            "Type": "BaseEnum",
+            "MinValue": null,
+            "MaxValue": null,
+            "DefaultValue": "Hard" 
+            }
+        ]
+    }
+    ],
+    "Enums": {
+        "BaseEnum": [
+            {
+            "DisplayName": "Hard",
+            "Value": "Hard",
+            "Description": [
+            "Enemies are tougher, more relentless, but more fun. The intended way to play"
+            ]
+            },
+            {
+            "DisplayName": "Normal",
+            "Value": "Normal",
+            "Description": [
+            "Enemies are are less relentless and tough, but still rather difficult to fight against"
+            ]
+            },
+			 {
+            "DisplayName": "Easy",
+            "Value": "Easy",
+            "Description": [
+            "Enemies are as tough and aggressive as unmodded, with QOL changes such as Master Ninja not stopping time"
+            ]
+            }
+            ]
+    },
+    "IniFile": "mod.ini"
+    
+}
