@@ -1,4 +1,4 @@
-add Cyber Physicality/raw
-Cyber Physicality/config.json
-Cyber Physicality/momentum.hmm
+add raw
+add config.json
+add momentum.hmm
 add mod.ini
