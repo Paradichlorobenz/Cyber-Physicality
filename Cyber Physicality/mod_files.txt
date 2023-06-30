@@ -1,4 +1,4 @@
-add CyberPhysicality/raw
+add Cyber Physicality/raw/character/playercommon.pac
 add config.json
 add momentum.hmm
 add mod.ini
