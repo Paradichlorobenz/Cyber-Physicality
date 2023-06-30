@@ -1,5 +1,6 @@
 add Cyber Physicality/raw/character/playercommon.pac
 add Cyber Physicality/raw/boss/giant01.pac
+Cyber Physicality/raw/enemy/enemycommon.pac
 add config.json
 add momentum.hmm
 add mod.ini
