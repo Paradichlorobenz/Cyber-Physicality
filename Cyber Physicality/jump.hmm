@@ -1,0 +1,7 @@
+Patch "Disable Double Jump" in "lol" by "WasifBoomz"
+{
+    WriteProtected<byte>(
+        0x141364B18,
+        0x70, 0x5B, 0x07
+    );
+}
