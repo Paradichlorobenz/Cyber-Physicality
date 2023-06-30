@@ -1,10 +1,10 @@
 PHYSICS CHANGES
-Adjusted slide into a near instant break
-Slowed down stomp speed in open zone
-Adjusted the roll to work better
-Custom Cyloop color
-Cyloop can be done at a lower speed
-Slowed down boost on rails
+* Adjusted slide into a near instant break
+* Slowed down stomp speed in open zone
+* Adjusted the roll to work better
+* Custom Cyloop color
+* Cyloop can be done at a lower speed
+* Slowed down boost on rails
 Lowered deceleration on rails
 Increased minimum speed on rails
 Jump base height has been nerfed so rail jumping isn't so high
