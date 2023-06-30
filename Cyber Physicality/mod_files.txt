@@ -1,2 +1,4 @@
 add mod.ini
 add Cyber Physicality/raw
+Cyber Physicality/config.json
+Cyber Physicality/momentum.hmm
