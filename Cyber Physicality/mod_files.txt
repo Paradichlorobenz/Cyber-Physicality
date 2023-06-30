@@ -4,4 +4,3 @@ add raw/enemy/enemycommon.pac
 add raw/miniboss/bladecommon.pac
 add config.json
 add momentum.hmm
-add mod.ini
