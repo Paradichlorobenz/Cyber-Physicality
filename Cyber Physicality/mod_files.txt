@@ -1,7 +1,7 @@
-add /raw/character/playercommon.pac
-add /raw/boss/giant01.pac
-add /raw/enemy/enemycommon.pac
-add /raw/miniboss/bladecommon.pac
+add raw/character/playercommon.pac
+add raw/boss/giant01.pac
+add raw/enemy/enemycommon.pac
+add raw/miniboss/bladecommon.pac
 add config.json
 add momentum.hmm
 add mod.ini
