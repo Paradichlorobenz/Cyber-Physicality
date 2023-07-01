@@ -1,7 +1,7 @@
-add Easy/raw/miniboss/bladecommon.pac
-add Hard/raw/enemy/enemycommon.pac
-add Hard/raw/miniboss/bladecommon.pac
-add Normal/raw/miniboss/bladecommon.pac
+delete Easy/raw/miniboss/bladecommon.pac
+delete Hard/raw/enemy/enemycommon.pac
+delete Hard/raw/miniboss/bladecommon.pac
+delete Normal/raw/miniboss/bladecommon.pac
 add main/raw/boss/giant01.pac
 add main/raw/character/playercommon.pac
 add config.json
