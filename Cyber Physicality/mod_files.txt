@@ -4,5 +4,5 @@ delete Hard/raw/miniboss/bladecommon.pac
 delete Normal/raw/miniboss/bladecommon.pac
 add main/raw/boss/giant01.pac
 add main/raw/character/playercommon.pac
-add config.json
+delete config.json
 add mod.ini
