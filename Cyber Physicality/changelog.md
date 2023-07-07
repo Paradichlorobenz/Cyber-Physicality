@@ -1,1 +1,1 @@
-Due to the double jump code being broken in update 2, I have manually disabled it in the rfl
+Adjusted super sonic's boost for when using the new super sonic mod. Don't expect anymore support for it besides this
