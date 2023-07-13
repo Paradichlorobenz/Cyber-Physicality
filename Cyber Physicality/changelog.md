@@ -1,5 +1,5 @@
 **Update 1.14** ***UNRELEASED***
-Added Combat DX's style mechanic. Credits go to Gordin Ramsay and Hyper for it
+* Added Combat DX's style mechanic. Credits go to Gordin Ramsay and Hyper for it
 
 **Update 1.13**
 * Adjusted super sonic's boost for when using the new super Sonic mod
