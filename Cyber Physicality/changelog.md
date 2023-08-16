@@ -1,3 +1,66 @@
+**Update 1.20**
+* Added Combat DX's style mechanic. Credits go to Gordon Ramsay and Hyper
+* Soldiers no longer die in one hit on kronos, while the platforming ones still due, thanks to Gordon Ramsay
+* Implemented a modified version of Reforged Combat's soldiers. Credits go to datsquishyfello
+* Moved skills around
+* The red Ninja has been buffed heavily. It is closer to vanilla master ninja
+* Master Ninja now has the health of a Titan and is extremely aggressive. Recommended to use Sora's Super Sonic mod to fight it
+* Fixed Twister not dying in one hit
+* Adjusted Homing Shot's spawning
+* Buffed Homing Shot damage
+* Sonic Boom can no longer go into Cross Slash
+* Fixed stomp
+* Stomp attack is now a finisher
+* Stomp has been moved to the jump button after cross slash
+* Stomp attack can now be performed after going behind a blocking enemy
+* Cyclone kick no longer deals damage
+* Cyclone kick is now faster
+* Cyclone kick has been removed from the combo pool. It can only be activated if the cyclone kick code is on
+* Finishers can no be done by pressing Right face button after doing a Pursuit Kick
+* Buffed Smash attack
+* Moves smash attack to be after cyloop by pressing Sonic Boom button
+* Moved Wild Rush to be after the 4 hit combo
+* Homing shot can now be done after Wild rush by pressing "Slide/Crouch" button
+* Smash can now be performed manually by press the right face button after Wild Rush
+* Loopkick has been removed from the combo set
+* Removed Auto SkillS
+* Dodge is now faster
+* Cylooping rings now has a cooldown, and only gives 30 rings
+* Only Spinslash, Crossslash, Wild Rush, and Homing Shot fill cyloop bar now
+* Jump has stronger gravity
+* Dodge has stronger gravity so you reach the ground faster
+* Brought back spindash, though it is extremely weak
+* Loopkick is now over Recovery Smash and Grand Slam
+* Removed Recovery smash
+* All moves can now be done as Super Sonic
+* Adjusted phantom rush
+* Slide now deals very little damage
+* You can roll by holding LT(Weezley made the code)
+* Added Weezley's spindash code
+* You uncurl at a slower speed now
+* Open Zone railing grinding is now faster and slows down harder, with a slightly lower min speed
+* Open Zone Airboost no longer lowers sonic as much
+* Open Zone run, boost, and powerboost has been adjusted
+* Open Zone boost animation is faster
+* Open zone acceleration has been adjusted
+* Open Zone turning now has decay
+* 3d Cyberspace no longer regens boost gauge from enemies, rings, or naturally
+* 3d Cyberspace running speed nerfed
+* 3d Cyberspace boost drain has been lowered
+* 3d Cyberspace boost gauge requires a higher percent filled to be usable again
+* 3d Cyberspace boost animation sped up
+* 2d Cyberspace dropdash is now more similar to the other 2 dropdashes
+* 2d Cyberspace speed is more similar to the other modes
+* 2d Cyberspace jump is now similar to the other modes
+* Cyberspace stomp is slower
+* Super Sonic base speed nerfed
+* Super Sonic boost speed buffed
+* Super sonic acceleration buffed
+* Super Sonic turning adjusted
+* Super Sonic break is stronger
+* Super Sonic's Cylcone Kick is more accurate to base Sonic now
+* Super Sonic no longer uses boost in open zone
+
 **Update 1.13**
 * Adjusted super sonic's boost for when using the new super Sonic mod
 * Adjusted the speed of Super Sonic
