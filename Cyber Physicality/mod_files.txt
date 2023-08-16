@@ -18,6 +18,7 @@ add main/raw/script/script_w2r01.pac
 add main/raw/script/script_w3r01.pac
 add main/raw/text/text_common.pac
 add  main/raw/text/text_skill_en.pac
+add CombatDX.dll
 add ComboConfig.lua
 add jump.hmm
 add mod.ini
