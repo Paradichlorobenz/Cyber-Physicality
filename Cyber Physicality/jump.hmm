@@ -1,7 +1,203 @@
-Patch "Disable Double Jump" in "lol" by "WasifBoomz"
+Code "Smash over Loopkick" in "My changes" by "Me" does "Does what it says"
+//
+     #lib "Sonic"
+//
 {
-    WriteProtected<byte>(
-        0x141364B18,
-        0x70, 0x5B, 0x07
+     Sonic.State.Redirect(Sonic.StateID.StateLoopKick, Sonic.StateID.StateSmash)
+}
+
+Code "LoopKick over Smash" in "My changes" by "Me" does "Does what it says" 
+//
+     #lib "Sonic"
+//
+{
+     Sonic.State.Redirect(Sonic.StateID.StateSmash, Sonic.StateID.StateLoopKick)
+}
+
+Code "Dropdash Roll over Spindash with hold" in "My changes" by "Weezley" does "Allows you to use the dropdash when you try spindashing. Due to not giving itself it's own velocity, it works as a roll" 
+//
+     #lib "Sonic"
+//
+{
+    Sonic.State.Redirect(Sonic.StateID.StateSpinBoost, Sonic.StateID.StateDropDash)
+
+    if (Sonic.State.GetCurrentStateID() == Sonic.StateID.StateSpinBoost && Sonic.Input.IsReleased(Sonic.PlayerActionType.PlayerSonicboom))
+    {
+        Sonic.State.SetState(Sonic.IsGrounded() ? Sonic.StateID.StateRun : Sonic.StateID.StateFall)
+    }
+}
+
+Code "Dropdash Roll over Spindash with hold" in "My changes" by "Weezley" does "Allows you to use the dropdash when you try spindashing. Due to not giving itself it's own velocity, it works as a roll" 
+//
+     #lib "Sonic"
+//
+{
+    Sonic.State.Redirect(Sonic.StateID.StateSpinMove, Sonic.StateID.StateDropDash)
+
+    if (Sonic.State.GetCurrentStateID() == Sonic.StateID.StateSpinMove && Sonic.Input.IsReleased(Sonic.PlayerActionType.PlayerSonicboom))
+    {
+        Sonic.State.SetState(Sonic.IsGrounded() ? Sonic.StateID.StateRun : Sonic.StateID.StateFall)
+    }
+}
+
+Code "Dropdash Roll over Spindash with hold" in "My changes" by "Weezley" does "Allows you to use the dropdash when you try spindashing. Due to not giving itself it's own velocity, it works as a roll" 
+//
+     #lib "Sonic"
+//
+{
+    Sonic.State.Redirect(Sonic.StateID.StateDropDash, Sonic.StateID.StateDropDash)
+
+    if (Sonic.State.GetCurrentStateID() == Sonic.StateID.StateDropDash && Sonic.Input.IsReleased(Sonic.PlayerActionType.PlayerSonicboom))
+    {
+        Sonic.State.SetState(Sonic.IsGrounded() ? Sonic.StateID.StateRun : Sonic.StateID.StateFall)
+    }
+}
+
+Code "Dropdash Roll over Spindash with hold" in "My changes" by "Weezley" does "Allows you to use the dropdash when you try spindashing. Due to not giving itself it's own velocity, it works as a roll" 
+//
+     #lib "Sonic"
+//
+{
+    Sonic.State.Redirect(Sonic.StateID.StateSpinBoost, Sonic.StateID.StateDropDash)
+
+    if (Sonic.State.GetCurrentStateID() == Sonic.StateID.StateSpinBoost && Sonic.Input.IsReleased(Sonic.PlayerActionType.PlayerSonicboom))
+    {
+        Sonic.State.SetState(Sonic.IsGrounded() ? Sonic.StateID.StateRun : Sonic.StateID.StateFall)
+    }
+}
+
+Code "Dropdash Roll over Spindash with hold" in "My changes" by "Weezley" does "Allows you to use the dropdash when you try spindashing. Due to not giving itself it's own velocity, it works as a roll" 
+//
+     #lib "Sonic"
+//
+{
+    Sonic.State.Redirect(Sonic.StateID.StateSpinMove, Sonic.StateID.StateDropDash)
+
+    if (Sonic.State.GetCurrentStateID() == Sonic.StateID.StateSpinMove && Sonic.Input.IsReleased(Sonic.PlayerActionType.PlayerSonicboom))
+    {
+        Sonic.State.SetState(Sonic.IsGrounded() ? Sonic.StateID.StateRun : Sonic.StateID.StateFall)
+    }
+}
+
+Code "Dropdash Roll over Spindash with hold" in "My changes" by "Weezley" does "Allows you to use the dropdash when you try spindashing. Due to not giving itself it's own velocity, it works as a roll" 
+//
+     #lib "Sonic"
+//
+{
+    Sonic.State.Redirect(Sonic.StateID.StateDropDash, Sonic.StateID.StateDropDash)
+
+    if (Sonic.State.GetCurrentStateID() == Sonic.StateID.StateDropDash && Sonic.Input.IsReleased(Sonic.PlayerActionType.PlayerSonicboom))
+    {
+        Sonic.State.SetState(Sonic.IsGrounded() ? Sonic.StateID.StateRun : Sonic.StateID.StateFall)
+    }
+}
+
+Code "Drop Dash Over Spin Dash" in "Gameplay" by "Weezley" 
+//
+	#include "ReflectionHelpers" noemit
+
+    #lib "Sonic"
+	#lib "SonicParameters"
+    #lib "BlackboardStatus"
+
+    static bool IsVelocityAdded = false;
+    static float chargeCount = 1.0f;
+//
+{
+    Sonic.State.Redirect(Sonic.StateID.StateSpinBoost, Sonic.StateID.StateDropDash);
+
+    var currentState = Sonic.State.GetCurrentStateID();
+    var previousState = Sonic.State.GetPreviousStateID();
+
+    if (!Sonic.IsGrounded())
+    {
+        Sonic.State.Discard(Sonic.StateID.StateSpinBoostCharge);
+    }
+    else
+    {
+        Sonic.State.Restore(Sonic.StateID.StateSpinBoostCharge);
+    }
+
+    if (Sonic.Input.IsPressed(Sonic.PlayerActionType.PlayerSonicboom) && !Sonic.IsGrounded() && !BlackboardStatus.IsCyberSpace())
+    {
+        Sonic.State.SetState(Sonic.StateID.StateSonicBoomKick);
+    }
+
+    if (Sonic.Input.IsPressed(Sonic.PlayerActionType.PlayerSonicboom) && Sonic.State.GetCurrentStateID() == Sonic.StateID.StateSpinBoostCharge && chargeCount < 6)
+    {
+        chargeCount += 1;
+    }
+    else if (Sonic.State.GetCurrentStateID() == Sonic.StateID.StateSpinBoostCharge && chargeCount > 1)
+    {
+        chargeCount -= 0.015f;
+    }
+
+    if (previousState == Sonic.StateID.StateSpinBoostCharge && currentState == Sonic.StateID.StateSpinBoost)
+    {
+        if (!IsVelocityAdded)
+        {
+            var kinematics = Sonic.Kinematics.Get();
+
+            if (kinematics == null)
+                return;
+
+            *kinematics.Velocity += Sonic.Kinematics.GetForward() * (chargeCount * 7.0f);
+
+            IsVelocityAdded = true;
+
+            goto Reset;
+        }
+        Reset:
+            chargeCount = 1;
+    }
+    else
+    {
+        IsVelocityAdded = false;
+    }
+
+    bool isBoostPressed = Sonic.Input.IsPressed(Sonic.PlayerActionType.PlayerBoost);
+    bool isStompPressed = Sonic.Input.IsPressed(Sonic.PlayerActionType.PlayerStomping);
+
+    if ((currentState == Sonic.StateID.StateSpinBoost || currentState == Sonic.StateID.StateDropDash) && isStompPressed)
+    {
+        Sonic.State.SetState(Sonic.IsGrounded() ? Sonic.StateID.StateSpringJumpHeadLand : Sonic.StateID.StateFall);
+    }
+    else if ((currentState == Sonic.StateID.StateSpinBoost || currentState == Sonic.StateID.StateDropDash) && isBoostPressed)
+    {
+        Sonic.State.SetState(Sonic.IsGrounded() ? Sonic.StateID.StateAirBoost : Sonic.StateID.StateBumpJump);
+    }
+
+    var SonicParametersInfo = Reflection.GetDataInfo<SonicParameters.Root>("player_common");
+
+	if (SonicParametersInfo.pData == null)
+		return;
+
+	RFL_SET_PARAM(SonicParametersInfo, forwardView.dropDash.brake, 2.5f);
+	RFL_SET_PARAM(SonicParametersInfo, forwardView.dropDash.steeringSpeed1, 400.0f);
+	RFL_SET_PARAM(SonicParametersInfo, forwardView.dropDash.steeringSpeed2, 200.0f);
+    RFL_SET_PARAM(SonicParametersInfo, forwardView.dropDash.checkDashSpeed, 10.0f);
+    RFL_SET_PARAM(SonicParametersInfo, cyberspace.dropDash.brake, 2.5f);
+	RFL_SET_PARAM(SonicParametersInfo, cyberspace.dropDash.steeringSpeed1, 400.0f);
+	RFL_SET_PARAM(SonicParametersInfo, cyberspace.dropDash.steeringSpeed2, 200.0f);
+    RFL_SET_PARAM(SonicParametersInfo, cyberspace.dropDash.checkDashSpeed, 10.0f);
+    RFL_SET_PARAM(SonicParametersInfo, cyberspaceSV.dropDash.brake, 2.5f);
+	RFL_SET_PARAM(SonicParametersInfo, cyberspaceSV.dropDash.steeringSpeed1, 400.0f);
+	RFL_SET_PARAM(SonicParametersInfo, cyberspaceSV.dropDash.steeringSpeed2, 200.0f);
+    RFL_SET_PARAM(SonicParametersInfo, cyberspaceSV.dropDash.checkDashSpeed, 10.0f);
+}
+
+Patch "Disable Drop Dash Turning Delay" in "Physics" by "Hyper"
+{
+    WriteNop
+    (
+        /* 0x14084323B */
+        ScanSignature
+        (
+            "\x73\x19\x48\x8B\x47\x40",
+            "xxxxxx"
+        ),
+
+        2
     );
 }
+
