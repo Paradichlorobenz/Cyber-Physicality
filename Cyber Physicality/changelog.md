@@ -1,6 +1,6 @@
 **Update 1.21**
 * Changed to the new spindash code
-* Added SA1's charge mechanice(just hold the "Crouch/Slide" button)
+* Added SA1's charge mechanic(just hold the "Crouch/Slide" button. Pressing "Sonic Boom" button for charging is still in)
 * Moved  Wild Rush to the "Crouch/Slide" button
 * Moved Homing shot to "Jump" button
 
