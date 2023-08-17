@@ -127,9 +127,9 @@ Code "Drop Dash Over Spin Dash" in "Gameplay" by "Weezley"
     {
         chargeCount += 1;
     }
-    else if (Sonic.State.GetCurrentStateID() == Sonic.StateID.StateSpinBoostCharge && chargeCount > 1)
+    else if (Sonic.State.GetCurrentStateID() == Sonic.StateID.StateSpinBoostCharge && chargeCount < 6)
     {
-        chargeCount -= 0.015f;
+        chargeCount += 0.033f;
     }
 
     if (previousState == Sonic.StateID.StateSpinBoostCharge && currentState == Sonic.StateID.StateSpinBoost)
@@ -165,6 +165,33 @@ Code "Drop Dash Over Spin Dash" in "Gameplay" by "Weezley"
     else if ((currentState == Sonic.StateID.StateSpinBoost || currentState == Sonic.StateID.StateDropDash) && isBoostPressed)
     {
         Sonic.State.SetState(Sonic.IsGrounded() ? Sonic.StateID.StateAirBoost : Sonic.StateID.StateBumpJump);
+    }
+
+    if (Sonic.IsSideView())
+    {
+        WriteProtected<byte>
+        (
+            ScanSignature
+            (
+                "\x74\x10\x0F\x28\xCF",
+                "xxxxx"
+            ),
+
+            0xEB
+        )
+    }
+    else
+    {
+        WriteProtected<byte>
+        (
+            ScanSignature
+            (
+                "\x74\x10\x0F\x28\xCF",
+                "xxxxx"
+            ),
+
+            0x74, 0x10, 0x0F, 0x28, 0xCF
+        )
     }
 
     var SonicParametersInfo = Reflection.GetDataInfo<SonicParameters.Root>("player_common");
