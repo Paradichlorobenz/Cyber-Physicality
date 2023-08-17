@@ -1,3 +1,9 @@
+**Update 1.21**
+* Changed to the new spindash code
+* Added SA1's charge mechanice(just hold the "Crouch/Slide" button)
+* Moved  Wild Rush to the "Crouch/Slide" button
+* Moved Homing shot to "Jump" button
+
 **Update 1.20**
 * Added Combat DX's style mechanic. Credits go to Gordon Ramsay and Hyper
 * Soldiers no longer die in one hit on kronos, while the platforming ones still due, thanks to Gordon Ramsay
