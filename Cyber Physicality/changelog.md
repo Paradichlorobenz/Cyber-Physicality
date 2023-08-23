@@ -1,4 +1,5 @@
 **Update 1.22**
+
 *This is the last update for awhile. The third update of this will be changes for the new playable characters, not to mention several codes used will be broken.*
 * Spindash is slightly slower
 * Spindash charging takes longer
