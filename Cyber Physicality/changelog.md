@@ -1,3 +1,29 @@
+**Update 1.22**
+*This is the last update for awhile. The third update of this will be changes for the new playable characters, not to mention several codes used will be broken.*
+* Spindash is slightly slower
+* Spindash charging takes longer
+* Spindash now has a base speed
+* Spindash hold charge is faster
+* Pursuit kick can be done without attacking now
+* Max starting speed now has the same cap as min starting spead
+* Max starting speed now has same minimum speed as min starting speed
+* Max starting speed initial speed is now faster than min starting speed
+* Max initial boost now has the same cap as min initial boost
+* Max initial boost now has same minimum speed as min initial boost
+* Max initial boost is now faster than min initial boost
+* Speed cap has been lowered by half(open zone)
+* Min top speed is now as fast as vanilla max speed(open zone and 2d cyberspace)
+* 2d cyberspace min starting speed lowered
+* 2d cyberspace max initial boost is now the same as min initial boost
+* Adjusted dropdash accel/decel
+* Dropdash ends at a lower speed now
+* Brough back 1.1's dropdash movement
+* Sonic loses less speed going uphill
+* Sonic boom doesn't slow sonic's descent soeed as much
+* Sonic Boom no longer takes half a second before dealing damage
+* Slide is now a bit stronger
+
+
 **Update 1.21**
 * Changed to the new spindash code
 * Added SA1's charge mechanic(just hold the "Crouch/Slide" button. Pressing "Sonic Boom" button for charging is still in)
