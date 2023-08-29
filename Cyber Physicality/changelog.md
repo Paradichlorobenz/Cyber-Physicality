@@ -1,3 +1,17 @@
+**Update 1.23**
+
+*Minor update. Hasn't planned on it but the spindash changes by Lexstorm made me have to from how useful they are*
+*Added High-Speed style: Another Physics mod's spam dash removal code
+* Spindash is no longer broken in 2d cyberspace
+* Spindash is now good in 3d cyberspace
+* Reverted to the old slide prior to update 1.22
+* Nerfed 2d cyberspace dropdash
+* Nerfed 3d cyberspace dropdash
+* Improved super sonic brake
+* Added "disable powerboost" code
+* Air boost is a bit better in open zone
+* Added the jump retains speed code, with weezley's edit that makes it affect rail jumping
+
 **Update 1.22**
 
 *This is the last update for awhile. The third update of this will be changes for the new playable characters, not to mention several codes used will be broken.*
