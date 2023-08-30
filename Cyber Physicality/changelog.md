@@ -1,3 +1,7 @@
+**Update 1.23b**
+
+Forgot to add the disable powerboost code. This has been properly added now
+
 **Update 1.23**
 
 *Minor update. Hasn't planned on it but the spindash changes by Lexstorm made me have to from how useful they are*
