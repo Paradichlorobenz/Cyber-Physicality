@@ -164,7 +164,7 @@ Code "Drop Dash Over Spin Dash" in "Gameplay" by "Weezley"
             if (kinematics == null)
                 return;
 
-            *kinematics.Velocity += Sonic.Kinematics.GetForward() * (chargeCount * 5.0f + 15.0f);
+            *kinematics.Velocity += Sonic.Kinematics.GetForward() * (chargeCount * 2.0f + 5.0f);
 
             IsVelocityAdded = true;
 
@@ -178,7 +178,7 @@ Code "Drop Dash Over Spin Dash" in "Gameplay" by "Weezley"
             if (kinematics == null)
                 return;
 
-            *kinematics.Velocity += Sonic.Kinematics.GetForward() * (chargeCount * 0.75f + 5.0f);
+            *kinematics.Velocity += Sonic.Kinematics.GetForward() * (chargeCount * 1.0f + 10.0f);
 
             IsVelocityAdded = true;
 
@@ -244,15 +244,15 @@ Code "Drop Dash Over Spin Dash" in "Gameplay" by "Weezley"
 	RFL_SET_PARAM(SonicParametersInfo, forwardView.dropDash.brake, 20.0f);
 	RFL_SET_PARAM(SonicParametersInfo, forwardView.dropDash.steeringSpeed1, 360.0f);
 	RFL_SET_PARAM(SonicParametersInfo, forwardView.dropDash.steeringSpeed2, 70.0f);
-    RFL_SET_PARAM(SonicParametersInfo, forwardView.dropDash.checkDashSpeed, 30.0f);
+    RFL_SET_PARAM(SonicParametersInfo, forwardView.dropDash.checkDashSpeed, 3.0f);
     RFL_SET_PARAM(SonicParametersInfo, cyberspace.dropDash.brake, 20.0f);
 	RFL_SET_PARAM(SonicParametersInfo, cyberspace.dropDash.steeringSpeed1, 360.0f);
 	RFL_SET_PARAM(SonicParametersInfo, cyberspace.dropDash.steeringSpeed2, 60.0f);
-    RFL_SET_PARAM(SonicParametersInfo, cyberspace.dropDash.checkDashSpeed, 30.0f);
+    RFL_SET_PARAM(SonicParametersInfo, cyberspace.dropDash.checkDashSpeed, 3.0f);
     RFL_SET_PARAM(SonicParametersInfo, cyberspaceSV.dropDash.brake, 20.0f);
 	RFL_SET_PARAM(SonicParametersInfo, cyberspaceSV.dropDash.steeringSpeed1, 400.0f);
 	RFL_SET_PARAM(SonicParametersInfo, cyberspaceSV.dropDash.steeringSpeed2, 200.0f);
-    RFL_SET_PARAM(SonicParametersInfo, cyberspaceSV.dropDash.checkDashSpeed, 10.0f);
+    RFL_SET_PARAM(SonicParametersInfo, cyberspaceSV.dropDash.checkDashSpeed, 3.0f);
 }
 
 Patch "Disable Drop Dash Turning Delay" in "Physics" by "Hyper"
