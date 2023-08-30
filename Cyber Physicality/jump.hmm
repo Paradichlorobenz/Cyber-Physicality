@@ -101,7 +101,7 @@ Code "Drop Dash Over Spin Dash" in "Gameplay" by "Weezley"
     #lib "BlackboardStatus"
 
     static bool IsVelocityAdded = false;
-    static float chargeCount = 1.0f;
+    static float chargeCount = 0.0f;
 //
 {
     Sonic.State.Redirect(Sonic.StateID.StateSpinBoost, Sonic.StateID.StateDropDash);
@@ -109,7 +109,7 @@ Code "Drop Dash Over Spin Dash" in "Gameplay" by "Weezley"
     var currentState = Sonic.State.GetCurrentStateID();
     var previousState = Sonic.State.GetPreviousStateID();
 
-    if (!Sonic.IsGrounded())
+    if (!Sonic.IsGrounded() && BlackboardStatus.IsCyberSpace())
     {
         Sonic.State.Discard(Sonic.StateID.StateSpinBoostCharge);
     }
@@ -118,41 +118,83 @@ Code "Drop Dash Over Spin Dash" in "Gameplay" by "Weezley"
         Sonic.State.Restore(Sonic.StateID.StateSpinBoostCharge);
     }
 
-    if (Sonic.Input.IsPressed(Sonic.PlayerActionType.PlayerSonicboom) && !Sonic.IsGrounded() && !BlackboardStatus.IsCyberSpace())
+    if (!Sonic.IsGrounded() && !BlackboardStatus.IsCyberSpace())
     {
-        Sonic.State.SetState(Sonic.StateID.StateSonicBoomKick);
+        Sonic.State.Redirect(Sonic.StateID.StateSpinBoostCharge, Sonic.StateID.StateSonicBoomKick)
+    }
+    else
+    {
+        Sonic.State.Redirect(Sonic.StateID.StateSpinBoostCharge, Sonic.StateID.StateSpinBoostCharge)
     }
 
-    if (Sonic.Input.IsPressed(Sonic.PlayerActionType.PlayerSonicboom) && Sonic.State.GetCurrentStateID() == Sonic.StateID.StateSpinBoostCharge && chargeCount < 6)
+    if (Sonic.Kinematics.GetHorizontalMagnitude() >= 30.0f) 
+    {
+	Sonic.State.Discard(Sonic.StateID.StateSpinBoostCharge)
+    }
+
+    if (Sonic.Input.IsPressed(Sonic.PlayerActionType.PlayerSonicboom) && Sonic.State.GetCurrentStateID() == Sonic.StateID.StateSpinBoostCharge && chargeCount < 12)
     {
         chargeCount += 1;
     }
-    else if (Sonic.State.GetCurrentStateID() == Sonic.StateID.StateSpinBoostCharge && chargeCount < 6)
+    else if (Sonic.State.GetCurrentStateID() == Sonic.StateID.StateSpinBoostCharge && chargeCount < 12)
     {
-        chargeCount += 0.033f;
+        chargeCount += 0.066f;
     }
 
     if (previousState == Sonic.StateID.StateSpinBoostCharge && currentState == Sonic.StateID.StateSpinBoost)
     {
-        if (!IsVelocityAdded)
+        if (!IsVelocityAdded && !BlackboardStatus.IsCyberSpace() && !Sonic.IsSideView())
         {
             var kinematics = Sonic.Kinematics.Get();
 
             if (kinematics == null)
                 return;
 
-            *kinematics.Velocity += Sonic.Kinematics.GetForward() * (chargeCount * 7.0f);
+            *kinematics.Velocity += Sonic.Kinematics.GetForward() * (chargeCount * 2.5f + 10.0f);
+
+            IsVelocityAdded = true;
+
+            goto Reset;
+        }
+
+        if (!IsVelocityAdded && BlackboardStatus.IsCyberSpace() && !Sonic.IsSideView())
+        {
+            var kinematics = Sonic.Kinematics.Get();
+
+            if (kinematics == null)
+                return;
+
+            *kinematics.Velocity += Sonic.Kinematics.GetForward() * (chargeCount * 5.0f + 15.0f);
+
+            IsVelocityAdded = true;
+
+            goto Reset;
+        }
+
+	if (!IsVelocityAdded && Sonic.IsSideView())
+        {
+            var kinematics = Sonic.Kinematics.Get();
+
+            if (kinematics == null)
+                return;
+
+            *kinematics.Velocity += Sonic.Kinematics.GetForward() * (chargeCount * 0.75f + 5.0f);
 
             IsVelocityAdded = true;
 
             goto Reset;
         }
         Reset:
-            chargeCount = 1;
+            chargeCount = 0;
     }
     else
     {
         IsVelocityAdded = false;
+    }
+
+    if (Sonic.State.GetCurrentStateID() != Sonic.StateID.StateSpinBoostCharge)
+    {
+        chargeCount = 1;
     }
 
     bool isBoostPressed = Sonic.Input.IsPressed(Sonic.PlayerActionType.PlayerBoost);
@@ -199,15 +241,15 @@ Code "Drop Dash Over Spin Dash" in "Gameplay" by "Weezley"
 	if (SonicParametersInfo.pData == null)
 		return;
 
-	RFL_SET_PARAM(SonicParametersInfo, forwardView.dropDash.brake, 2.5f);
-	RFL_SET_PARAM(SonicParametersInfo, forwardView.dropDash.steeringSpeed1, 400.0f);
-	RFL_SET_PARAM(SonicParametersInfo, forwardView.dropDash.steeringSpeed2, 200.0f);
-    RFL_SET_PARAM(SonicParametersInfo, forwardView.dropDash.checkDashSpeed, 10.0f);
-    RFL_SET_PARAM(SonicParametersInfo, cyberspace.dropDash.brake, 2.5f);
-	RFL_SET_PARAM(SonicParametersInfo, cyberspace.dropDash.steeringSpeed1, 400.0f);
-	RFL_SET_PARAM(SonicParametersInfo, cyberspace.dropDash.steeringSpeed2, 200.0f);
-    RFL_SET_PARAM(SonicParametersInfo, cyberspace.dropDash.checkDashSpeed, 10.0f);
-    RFL_SET_PARAM(SonicParametersInfo, cyberspaceSV.dropDash.brake, 2.5f);
+	RFL_SET_PARAM(SonicParametersInfo, forwardView.dropDash.brake, 20.0f);
+	RFL_SET_PARAM(SonicParametersInfo, forwardView.dropDash.steeringSpeed1, 360.0f);
+	RFL_SET_PARAM(SonicParametersInfo, forwardView.dropDash.steeringSpeed2, 70.0f);
+    RFL_SET_PARAM(SonicParametersInfo, forwardView.dropDash.checkDashSpeed, 30.0f);
+    RFL_SET_PARAM(SonicParametersInfo, cyberspace.dropDash.brake, 20.0f);
+	RFL_SET_PARAM(SonicParametersInfo, cyberspace.dropDash.steeringSpeed1, 360.0f);
+	RFL_SET_PARAM(SonicParametersInfo, cyberspace.dropDash.steeringSpeed2, 60.0f);
+    RFL_SET_PARAM(SonicParametersInfo, cyberspace.dropDash.checkDashSpeed, 30.0f);
+    RFL_SET_PARAM(SonicParametersInfo, cyberspaceSV.dropDash.brake, 20.0f);
 	RFL_SET_PARAM(SonicParametersInfo, cyberspaceSV.dropDash.steeringSpeed1, 400.0f);
 	RFL_SET_PARAM(SonicParametersInfo, cyberspaceSV.dropDash.steeringSpeed2, 200.0f);
     RFL_SET_PARAM(SonicParametersInfo, cyberspaceSV.dropDash.checkDashSpeed, 10.0f);
