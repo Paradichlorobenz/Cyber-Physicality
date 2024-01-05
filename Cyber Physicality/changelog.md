@@ -1,3 +1,169 @@
+**Update 2.0**
+I wasn't planning on doing it this early but 5 months is long enough for an update. I mostly worked on Sonic, in fact, half of this update was worked on before update 3 released. As such, some of the other characters may have issues/be subject to change. The modpage is updated, though there are still many outdated things on it. The next update will be big though, focusing on new combat options, a proper Super Sonic Overhaul, and a new mechanic to make combat a little more indepth. Below is the changelog.
+
+Prior to Update 3
+* Added camera shake when charging spindash
+* A brand new mechanic has been added, called Super Run Mode
+* Powerboost effects play at high speed
+* Wild Rush's lightning lines appear at high speed
+* Full Wild Rush effects when you go beyond the speed cap
+* Physics change when you go beyond the speed cap
+* Open Zone Dropdash brake now changes based on your speed
+* Spindash top speed will no longer be random
+* Spindash charging has been improved
+* Spindash speed is now affected by level
+* Spindash charging time now needs the "Jump" button held
+* Open Zone slide changes depending on your speed
+* You can no longer attack while moving
+* Cyclone Kick can be done in open zone by pressing "Sonic Boom" button aftering attacking
+* 2d Cyberspace boost has been removed
+* 2d Cyberspace is faster
+* 2d Cyberspace is more momentum based
+* 2d Dropdash buffed
+* 2d Spindash buffed
+* 2d Cyberspace no longer has boost animation play all the time
+* 2d Cyberspace homing attack is faster
+* 2d Homing attack no longer has delay
+* Replaced 2d homing attack and air boost with homing kick
+* Removed boosting in 2d cyberspace
+* 2d Cyberspace homing attack has been moved to RT
+* 2d Cyberspace Air dash overhauled
+* 2d Lightspeed dash is disabled
+* 2d cyberspace homing attack is now slower
+* 3d cyberspace boost is now cooldown based instead of a gauge
+* 3d cyberspace boost strength is based off your speed
+* 3d Cyberspace is faster now
+* 3d Cyberspace speed cap is 2.2Xs faster
+* 3d Cyberspace spindash buffed
+* 3d Cyberspace dropdash buffed
+* Air Boost no longer uses boost gauge in 3d Cyberspace
+* 3d Cyberspace boost is now stronger depending on your current speed
+* 3d Cyberspace turning has been improved
+* Starting speed slider now affects cyberspace
+* Changed Homing attack animation to Air Boost
+* Fixed the run animations breaking in 2d
+* You can no longer boost to get out of dropdash
+* The big loop in 4-2 is no longer broken to go through
+* Added enemy bouncing(weezley made the code)
+* Spindash now has effects to look better(Removed due to bugs)
+* Smash attack can now be done by press the "Cyloop" button after a quick cyloop, if you have enough cyloop gauge left
+* Quick cyloop can now go into 4 other moves
+* Smash attack damage buffed
+* Improved slope jumping
+* Both Spindash and Dropdash need the "Sonic Boom" button to be held in order to be used
+* Rolling now sends enemies further based off your speed
+* Rolling now sends enemies up a slight bit
+* Removed Wild Rush from LT
+* Skills can now be done at different punch combos, based on how fast you are
+* Skills deal more damage based on ta hidden combo counter
+* Finisher damage has been buffed
+* Rolling damage is now based on speed
+* Cyclone kick has been moved to the "Sonic Boom" button, to be consistant with Quick Cyloop
+* Cyclone kick now requires you to attack first if out of combat
+* You can no longer do a full attack combo while outside of combat
+* LoopKick can be used after Cyclone kick by press the "Attack" button
+* You can only parry a certain number times before parry goes into cooldown, the number being based on your defense level
+* Max parry time is now based off your defense level
+* If you run out of parries, you'll here a buzz indicating you're out
+* If you run out of parries, the cooldown will last longer
+* Super Sonic has a different parry time than base sonic, along with not having a cooldown
+* Super Sonic can no longer use Smash attack, it is replaced with LoopKick
+* Dodge is now on the "Right Quickstep" button only and is directional
+* It is recommened to use the "Parry on LB" control layout, which you can get from Steam's controller layout option
+* Trying to parry at high speed will go into quickstep left. This is meant for the "Parry on LB" control layout
+* It is now possible to go backwards on rails in open zone if you're too slow. Made by Weezley
+* By holding the "Attack" button, you can increase your rail acceleration and deceleration
+* Adjusted Open zone rail acceleration and decelleration
+* Lowered open zone rail boost
+* Max Speed is now based off your speed level
+* Boost is disabled in open zone until speed reaches level 10
+* Sonic no longer deals damage with jumping in open zone
+* Sonic now goes into spinmove if dropdash speed is too low
+* Spinmove has been adjusted to work better, based on diddykong's cancelled mod
+* Sonic can no longer create rings with cyloop in open zone
+* Updated to work with the 1.41 version of frontiers
+* Moved Phantom Rush in the skill tree
+* Edited Amy, Knuckles, and Tails' skill trees
+* Buffed Kronos Soldier health using a code by(datsquishyfello)
+* Heavily buffed Master Ninja
+* Some cyberspace time tweaks, not a full overhaul though.
+* Fishing is significantly more expensive
+* Rankings have been removed temporarily
+
+Everyone
+* Damage has been lowered to be more in line with Sonic'sends
+* Physics have been adjusted to be more like Sonic's
+
+2.0, sonic
+* Added in the Kaio-ken mod
+* Removed the combo counter
+* Cyberspace initial speed is now more similar to open zone
+* Sonic can no longer gain rings from cyloop
+* Sonic now gains rings by tricking(datsquishyfello's mod)
+* Fixed Spinboost charge being possible in cyberspace
+* Homing Attack is aerial only in both 3d stages and open zone
+* Pursuit Kick now requires you to be airborne or attacking to use
+* You can now use Quick Aerial Cyloop after airboosting(input is the "Cyloop" button) during combat. However, it has a very strict timing
+* After using Aerial Quick Cyloop, press the "Cyloop" button to use Smash Attack
+* Pressing the "Cyloop" button after quick cylooping will now do a Cyclone Kick instead of smash
+* Pressing the "Sonic Boom" button after quick cylooping will now do Sonic Boom instead of Cyclone Kick
+* Sonic Boom can now be used after most attacks
+* Buffed Sonic Boom's damage
+* Sonic Boom's fall speed has been lowered
+* Crossslash now deals higher damage
+
+Tails
+* Added [Tails] Increase Altitude on A Hold to the mod, but it uses the "Sonic Boom" button to go up and t he "Boost" button to go down
+* Flying now drains Boost gauge
+* Double Jump has been removed
+* Tails now has the homing attack, replacing the air spindash
+* Tails' homing attack uses a small amount  of boost
+* Tailss' spindash has been replaced with a Super Peelout
+* Tails' wrench is now more straight
+* Tails' cyblaster now regenerates Cyloop gauge faster, but you lose the ability to use cyblaster if the gauge  is under 30%
+* Wave Cannon now replaces Tails' parry and has a cooldown
+* Tails' cannot boost until he reaches his max running speed
+* Tails' cannot stay above his running speed without boosting, except for when he uses the Super Peelout, which adds a short window of time where being above the running speed will work
+* Boosting has a much lower drain
+* Tails' has the second highest speedcap
+* Tails' has the Super Run mode that  Sonic has
+* Tails' boost gauge grows as his stats increase
+* Boost regenerates at 10% of the total boost gauge
+* Tails' ring cap has been changed to a hit system, with each ring being how many hits he can take
+* Tails will die if he gets hit with only 1 ring, instead of 0
+* Defense no longer affects how many rings Tails loses when hit, he'll always lose 1 ring. Instead, his defense stat will increase his boost gauge more than the other stats
+* Tails cannot get rings from cyloop
+
+Knuckles
+* Knuckles' has the highest base speed
+* Knuckles' cannot go under his default speed
+* Gliding now has a lower minimum speed
+* Knuckles has a speedcap around vanilla's values
+* Double jump has been removed
+* Knuckles' will lose spinboost if he isn't going down a slope
+* Spindash charging has been replacing with stomp
+* Knuckles can no longer stomp using the B button
+* Knuckles' has infinite Cyloop gauge
+* Dodging now uses the Boost gauge
+* Attacking now uses the Boost gauge
+* Speed now affects boost gauge, instead of maximum speed
+* Parry has been made more strict
+* Knuckles' deals 50% more damage at level 1 than vanilla
+* Knuckles' parry debuff ability now only does 2 times damage but lasts twice as long
+* Knuckles' Airboost sends him  to the ground faster
+
+Amy
+* Amy cannot boost
+* Spindash charging has been removed
+* Spinboost has been replaced with a dash, which has a cooldown
+* Amy's glide is now only slightly slower than falling
+* Amy can no longer triple jump
+* Amy has the slowest speedcap
+* Amy loses less speed than everyone else
+* Amy's spin has been moved to the "Stomp/Slide" button
+* Amy's spin is no longer infinite
+* Amy's cyhammer no longer uses Cyloop gauge
+
 **Update 1.23b**
 
 Forgot to add the disable powerboost code. This has been properly added now
