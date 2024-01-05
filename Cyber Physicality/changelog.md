@@ -1,6 +1,6 @@
 **Update 2.0**
 
-I wasn't planning on doing it this early but 5 months is long enough for an update. I mostly worked on Sonic, in fact, half of this update was worked on before update 3 released. As such, some of the other characters may have issues/be subject to change. The modpage is updated, though there are still many outdated things on it. The next update will be big though, focusing on new combat options, a proper Super Sonic Overhaul, and a new mechanic to make combat a little more indepth. Below is the changelog.
+I wasn't planning on doing it this early but 5 months is long enough for an update. I mostly worked on Sonic, in fact, half of this update was worked on before update 3 released. As such, some of the other characters may have issues/be subject to change. The modpage is updated, though there are still many outdated things on it. The next update will be big though, focusing on new combat options, a proper Super Sonic Overhaul, and a new mechanic to make combat a little more indepth. Below is the changelog. Some parts of this changelog are wrong/outdated, so check the mod page for a proper look
 
 Prior to Update 3
 * Added camera shake when charging spindash
