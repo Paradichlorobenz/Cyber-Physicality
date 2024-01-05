@@ -1,0 +1,73 @@
+
+Code "Trick Finish" by "DatSquishyFello"
+//
+    #include "BlackboardStatus" noemit
+
+    #lib "Player"
+	#lib "BlackboardItem"
+	#lib "Time"
+	
+	static bool isFinish = false;
+	bool isTricking = IS_WORLD_FLAG(IsAirTrick);
+	static float timer = 0.0f;
+	static float delayTimer = 0.144f
+	static int ringnum = 0;
+//
+
+{
+    var pBlackboardItem = BlackboardItem.Get();
+	if (pBlackboardItem == null)
+		return;
+	int maxRings = pBlackboardItem->RingCapacity;
+	int rings = pBlackboardItem->RingCount;
+	
+    var kinematics = Player.Kinematics.Get();
+    if (kinematics == null)
+        return;
+
+	float speed = Player.Kinematics.GetHorizontalMagnitude();
+	Random RandomNum = new Random();
+			int randDamage = RandomNum.Next(1, 5);
+		if (isTricking)
+		{
+			timer += Time.GetDeltaTime();
+		
+			if (timer >= delayTimer)
+			{
+				ringnum += randDamage;
+				timer = 0.0f;
+			}
+		}
+		else
+		{
+			timer = 0.0f;
+		}
+	
+        if (isTricking && Player.Input.IsPressed(Player.InputActionType.PlayerLightDash) && !isFinish)
+        {
+			
+            isFinish = true;
+			Player.Sound.PlaySound("_sn_airtrick");
+			if (speed >= 30)
+			{
+				Player.Animation.SetAnimation("JUMP_TRICK_FINISH_F");
+				pBlackboardItem->RingCount += ringnum;
+			}
+			else
+			{
+				Player.Animation.SetAnimation("JUMP_TRICK_FINISH_B");
+				pBlackboardItem->RingCount += (int)Math.Round((ringnum / 2) * 1.0f);
+			}
+			ringnum = 0;
+		    SET_WORLD_FLAG(IsAirTrick, false);
+        }
+        else if (!isTricking)
+        {
+            isFinish = false;
+        }
+		
+		if (rings >= maxRings)
+		{
+			pBlackboardItem->RingCount = maxRings;
+		}
+}

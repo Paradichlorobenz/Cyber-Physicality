@@ -1,0 +1,369 @@
+Library "KaioCharge"
+//
+	public static float charge = 1;
+	public bool ControlDamage= false;
+//
+
+Library "Kaio"
+//
+	public static int Ki = 1;
+	public static int  KiMax= 1;
+//
+
+Library "SSG"
+//
+	public static bool SSB = false;
+//
+
+Code "Kaioken" in "Goofy codes"
+//
+	#include "Reflection" noemit
+	
+	#import "GOComponents"
+    #import "PlayerVisuals"
+
+    #lib "GameObject"
+    #lib "Player"
+    #lib "Time"
+    #lib "SonicParameters"
+	#lib "BlackboardItem"
+	#lib "Reflection"
+	#lib  "BlackboardStatus"
+	#lib "BlackboardBattle"
+	#lib "Lua"
+	#lib "KaioCharge"
+	#lib "Kaio"
+	#lib "SSG"
+	
+	#import "Plugins"
+       	
+	//  Don't change any of these values, these are values which should stay as are. Only exception is "KaioCharge.charge" 
+    static bool Kaioken = false;
+	static bool Charging = false;
+	static bool KaiokenOn = false;
+    static float CoolDown = 0;
+    static float DrainSpeed = 0;
+    static float DamageMin = 0;
+    static float DamageMax = 0;
+	static float DefenseMin = 0;
+    static float DefenseMax = 0;
+	static float CanKaioKen = 0;
+	static float SS2RingDrain = 0;
+//
+{
+	KaioCharge.ControlDamage = true;
+	var speedLv = Lua.Call<int>("GetSpeedLevel", 0);
+    var ringLv = Lua.Call<int>("GetRingLevel", 0);
+    var powerLv = Lua.Call<int>("GetPowerLevel", 0);
+    var guardLv = Lua.Call<int>("GetGuardLevel", 0);
+
+	bool isBoss = Player.State.GetStatePlugin("StatePluginBossBattle") != null;
+	
+	if (!BlackboardStatus.IsSuper())
+	{
+		var pBlackboardItem = BlackboardItem.Get();
+
+		if (pBlackboardItem == null)
+        return;
+
+		int rings = pBlackboardItem->RingCount;
+	
+		DamageMin = (KaioCharge.charge * 3); // This is your minimum damage. In vanilla, this would be 10.
+		DamageMax = (KaioCharge.charge * 15); // This is your maximum damage. In vanilla, this would be 40
+			
+		var SonicParametersInfo = Reflection.GetDataInfo<SonicParameters.Root>("player_common"); // Everything down here controls the RFL changes
+
+	if (SonicParametersInfo.pData == null)
+		return;
+			
+		RFL_SET_PARAM(SonicParametersInfo, forwardView.fly.maxSpeed, (float)((5 * KaioCharge.charge) + 30));
+		RFL_SET_PARAM(SonicParametersInfo, forwardView.fly.maxDashSpeed, (float)((10 * KaioCharge.charge) + 130));
+	}
+
+var pStatePluginBattle = Player.State.GetStatePlugin<StatePluginBattle>(); // Everything until the next comment shouldn't be changed
+
+if (pStatePluginBattle == null)
+    return;
+
+bool isPhantomRush = pStatePluginBattle->Flags.HasFlag(StatePluginBattle.BattleFlags.IsPhantomRush);
+
+	bool isCyberSpace = IS_WORLD_FLAG(IsCyberSpace);
+	
+	if (!IS_WORLD_FLAG(IsCyberSpace))
+	{
+	
+		float currentSpeed = Player.Kinematics.GetHorizontalMagnitude();
+
+		if (Player.GetPlayerType() != Player.PlayerType.Sonic)
+			return;
+
+		var pBlackboardItem = BlackboardItem.Get();
+
+		if (pBlackboardItem == null)
+        return;
+
+		int rings = pBlackboardItem->RingCount;
+	
+		var pBlackboardBattle = BlackboardBattle.Get();
+
+		if (pBlackboardBattle == null)
+			return;
+
+		
+		DefenseMin = (float)((0.75 * KaioCharge.charge) + 15); // This is your minimum defense, which affects how many rings Sonic loses when hit. In vanilla, the whole number would be 0
+		DefenseMax = (float)((0.75 * KaioCharge.charge) + 77); // This is your maximum defense, which affects how many rings Sonic loses when hit. In vanilla, the whole number would be 75
+
+		if (currentSpeed == 0 && Player.Input.IsDown(Player.InputActionType.PlayerCyloop) && Player.Input.IsDown(Player.InputActionType.PlayerBoost)) // This is the starting activation of the Kaio-ken. This should not be changed but if you wished, you can change "currentSpeed ==" to  "currentSpeed <=" and the 0 to the maximum speed Sonic can be while still able to use the Kaio-ken
+		{
+			if (Player.Input.IsDown(Player.InputActionType.PlayerLightDash)) // This is the charging sections. When the player holds the Lightspeed Dash button, the Kaio-ken KaioCharge.charges.
+			{
+				Player.Effect.PlayEffect("Kaioken", "ec_so_skill_accelerator_aura01_par01") // All PlayEffects control cemts. Cemts are the various effects, such as Wild Rush's lightning
+				Player.Effect.PlayEffect("Kaioken", "ec_so_skill_accelerator_aura01_lightning01")
+				Player.Effect.StopEffect("Kaioken") // This ends all PlayEffects related to it's name.
+				if (KaioCharge.charge < 20) // This is your maximum Kaio-ken level. Change the 20 to anything you want and that'll be the new cap.
+				{
+					if (CoolDown > 0.5) // This is what controls how fast the Kaio-ken KaioCharge.charges. Once CoolDown goes above 0.5, it is reset to 0 and the KaioCharge.charge goes up.
+					{
+						KaioCharge.charge += 1;
+						CoolDown = 0;
+					}
+					CoolDown += Time.GetDeltaTime();
+				}
+			}
+			Charging = true; // This tells the code that you are charging your Kaio-ken.
+		}
+		else
+		{
+			CoolDown = 0.5f;
+			Charging = false; // When you stop holding the two input buttons to start the KaioCharge.charge, the Kaio-ken stops charging.
+			if (!Kaioken)
+			{
+				KaioCharge.charge = 1;
+			}
+		}
+    
+    
+		if (Charging && Player.Input.IsReleased(Player.InputActionType.PlayerLightDash)) // This makes it so you must release the Lightspeed Dash but continue holding the Cyloop and Boost buttons
+		{
+			Player.Effect.StopEffect("Kaioken")
+			if (!Kaioken) // This controls whether you should activate the Kaio-ken or not.
+			{
+				Kaioken = true;
+				Player.State.SetState(Sonic.StateID.StateAwakening);
+				
+			}
+			else
+			{
+				Kaioken = false;
+				KaioCharge.charge = 1;
+				
+			}
+		}
+    
+		if (Kaioken) // Everything here relates to the Kaio-ken
+		{
+			pBlackboardBattle->PhantomRushAmount = 120.0f; // This is what sets your Phantom Rush to be active
+			pBlackboardBattle->ComboCount = (int)(KaioCharge.charge); // This shows your Kaio-ken level
+			if (pBlackboardItem->RingCount > 0) // This detects if your rings are 1 or higher, so you don't end up with negative rings.
+			{
+				if (KaioCharge.charge > 20) // This detects if your Kaio-ken level is above 20. Once your  Kaio-ken reaches 20, the original ring drain broke, so it gets replaced with a different one
+				{
+						if ( DrainSpeed > (0.1)) // This makes your rings drain quickly. Every time DrainSpeed is above this value, DrainSpeed resets and you lose rings
+						{
+							pBlackboardItem->RingCount -= (int)Math.Round(10 * KaioCharge.charge / 7); // This is what controls how many rings you lose. It's default value makes you lose 30 rings at Kaio-ken x21
+							DrainSpeed = 0;
+						}
+				}
+				else
+				{
+						if ( DrainSpeed > (1 / KaioCharge.charge)) // This makes your drain speed change based off the Kaio-ken level
+						{
+							pBlackboardItem->RingCount -= 1; // This makes you lose one ring.
+							if (Kaio.KiMax > 1)
+							{
+								Kaio.Ki -= 1;
+							}
+							DrainSpeed = 0;
+						}
+				}
+				DrainSpeed += Time.GetDeltaTime(); // This is the ring drain timer, do not mess with it.
+			
+			}
+        
+		
+			if (!KaiokenOn) // This detects if the effects should play.
+			{
+				Player.Effect.PlayEffect("Kaioken", "ec_ft_dash_ge01_dist03")
+				Player.Effect.PlayEffect("Kaioken", "ec_ft_dash_ge01_dist02")
+				Player.Effect.PlayEffect("Kaioken", "ec_ft_dash_ge01_dist01")
+				Player.Effect.PlayEffect("Kaioken", "ec_ss_aura01_default_gpu01")
+				Player.Effect.PlayEffect("Kaioken", "Aura")
+				Player.Effect.PlayEffect("Kaioken", "ec_so_cyloop_attract_hit01_impact01")
+				Player.Effect.PlayEffect("Kaioken", "ec_so_skill_accelerator_aura01_gpu01")
+				Player.Effect.PlayEffect("Kaioken", "ec_so_skill_accelerator_aura01_lightning01")
+				Player.Effect.PlayEffect("Kaioken", "ec_ss_aura01_default_undulation01")
+				Player.Effect.PlayEffect("Kaioken", "ef_ob_seed01_powerseed01_sonicbuff01")
+				Player.Sound.PlaySound("sn_ringmax")
+				KaiokenOn = true; // The effects will keep playing forever if this variable doesn't turn off.
+			}
+			if (pBlackboardItem->RingCount <= 0 || Kaio.Ki <= 0) // This detects if your rings are 0 or below 0.
+			{
+				if (pBlackboardItem->RingCount <= 0 && BlackboardStatus.IsSuper() || KaioCharge.charge >= 10) // This detects if the Kaio-ken is 10 or higher, or if you're Super Sonic
+				{
+					if (!isBoss)
+					{
+						Player.State.SetState(Sonic.StateID.StateDead);// This kills Sonic
+					}
+				}
+				Kaioken = false; // This forcibly disables Kaio-ken
+			}
+			
+
+			
+			if (!isPhantomRush) // This detects if Phantom Rush is inactive
+			{
+				CanKaioKen += Time.GetDeltaTime(); // This starts the timer on if Kaio-ken can continue
+				if (CanKaioKen > 0.1) // When CanKaioKen goes above this value, Kaio-ken is disabled
+				{
+					Kaioken = false);
+					CanKaioKen = 0;
+				}
+			}
+			else // This allows Kaio-ken to activate
+			{
+				CanKaioKen = 0;
+			}
+		}
+		else
+		{
+			pBlackboardBattle->PhantomRushAmount = 0.0f; // This disables Phantom Rush
+			Player.Effect.StopEffect("Kaioken")
+			KaiokenOn = false // This disables Kaio-ken's effects
+		}
+	
+		var SonicParametersInfo = Reflection.GetDataInfo<SonicParameters.Root>("player_common"); // Everything down here controls the RFL changes
+
+		if (SonicParametersInfo.pData == null)
+			return;
+			
+		// boost.initital controls your boost speed at low boosting speed. Vanilla has this at 20.
+		// boost2.initial controls your boost speed at max boosting speed. Vanilla has this at 30.
+		// boostLvMax.initital controls your powerboost speed at low boosting speed. Vanilla has this at 20.
+		// boostLvMax2.initial controls your powerboost speed at max boosting speed. Vanilla has this at 60.
+		// frozenTime controls how slow time gets when you parry, with 1 being fullspeed and 0 being completely frozen. Vanilla has this at 0.26.
+		// maxSpeed controls Super Sonic's non boost speed. Vanilla has this at 
+		// maxDashSpeed controls Super Sonic's boost speed. Vanilla has this at 170
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.common.offensive.pointMin, (byte)DamageMin);
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.common.offensive.pointMax, (byte)DamageMax);
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.common.defensive.rateMin, (byte)DefenseMin);
+		RFL_SET_PARAM(SonicParametersInfo, common.commonPackage.attack.common.defensive.rateMax, (byte)DefenseMax);
+		RFL_SET_PARAM(SonicParametersInfo, forwardView.modePackage.parry.frozenTime, (1 / KaioCharge.charge));
+		RFL_SET_PARAM(SonicParametersInfo, forwardView.modePackage.speed.boost.initial, (float)((0.3 * KaioCharge.charge) + 20));
+		RFL_SET_PARAM(SonicParametersInfo, forwardView.modePackage.speed.boost2.initial, (float)((0.05 * KaioCharge.charge) + 25));
+		RFL_SET_PARAM(SonicParametersInfo, forwardView.modePackage.speed.boostLvMax.initial, (float)((0.5 * KaioCharge.charge) + 25));
+		RFL_SET_PARAM(SonicParametersInfo, forwardView.modePackage.speed.boostLvMax2.initial, (float)((0.25 * KaioCharge.charge) + 30));
+	}
+	
+	
+	var data = Player.GetPlayerData();
+    if (data == null)
+        return;
+
+    var gocVisual = GameObject.GetGOC<GOCPlayerVisual>(&data->GameObject);
+    if (gocVisual == null)
+        return;
+
+    var visual = gocVisual->GetVisual<VisualSuperSonic>();
+    if (visual == null)
+        return;
+
+    if (visual->IsSuperSonic2)
+        Console.WriteLine("");
+		
+		if (visual->IsSuperSonic2) // Super Sonic 2's unique stats. Vanilla would not have this
+		{
+			if (SSG.SSB)
+			{
+				DamageMin = (KaioCharge.charge * 100); // This is your minimum damage. In vanilla, this would be 10.
+				DamageMax = (KaioCharge.charge * 250); // This is your maximum damage. In vanilla, this would be 40
+			}
+			else
+			{
+				DamageMin = (KaioCharge.charge * 10);
+				DamageMax = (KaioCharge.charge * 25);
+			}
+			
+			var SonicParametersInfo = Reflection.GetDataInfo<SonicParameters.Root>("player_common"); // Everything down here controls the RFL changes
+
+		if (SonicParametersInfo.pData == null)
+			return;
+			
+			if (SSG.SSB)
+			{
+				RFL_SET_PARAM(SonicParametersInfo, forwardView.fly.maxSpeed, (float)((15 * KaioCharge.charge) + (60 * 1.27)));
+				RFL_SET_PARAM(SonicParametersInfo, forwardView.fly.maxDashSpeed, (float)((30 * KaioCharge.charge) + (260 * 1.135)));
+			}
+			else
+			{
+				RFL_SET_PARAM(SonicParametersInfo, forwardView.fly.maxSpeed, (float)((15 * KaioCharge.charge) + 60 * 1.27));
+				RFL_SET_PARAM(SonicParametersInfo, forwardView.fly.maxDashSpeed, (float)((30 * KaioCharge.charge) + 260));
+			}
+			
+			var pBlackboardItem = BlackboardItem.Get();
+
+		if (pBlackboardItem == null)
+        return;
+
+			
+			if (SS2RingDrain > 2) // Additional ring drain as Super Sonic 2
+			{
+				if (pBlackboardItem->RingCount > 5 && KaioCharge.charge >= 2)
+					{
+						pBlackboardItem->RingCount -= 1;
+						SS2RingDrain = 0;
+					}
+				}
+			SS2RingDrain += Time.GetDeltaTime();
+			
+			if (pBlackboardItem->RingCount <= 50) // This detects if your rings are 50 or below 0.
+			{
+				if (visual->IsSuperSonic2 && KaioCharge.charge >= 2) // This detects if Super Sonic 2 is active
+				{
+					if (!isBoss)
+					{
+						Player.State.SetState(Sonic.StateID.StateDead);// This kills Sonic
+					}
+				}
+				Kaioken = false; // This forcibly disables Kaio-ken
+			}
+		}
+		else
+		{
+			if (SSG.SSB)
+			{
+				DamageMin = (KaioCharge.charge * 15); // This is your minimum damage. In vanilla, this would be 10.
+				DamageMax = (KaioCharge.charge * 45); // This is your maximum damage. In vanilla, this would be 40
+			}
+			else
+			{
+				DamageMin = (KaioCharge.charge * 3);
+				DamageMax = (KaioCharge.charge * 15);
+			}
+			
+			var SonicParametersInfo = Reflection.GetDataInfo<SonicParameters.Root>("player_common"); // Everything down here controls the RFL changes
+
+		if (SonicParametersInfo.pData == null)
+			return;
+			
+			if (SSG.SSB)
+			{
+				RFL_SET_PARAM(SonicParametersInfo, forwardView.fly.maxSpeed, (float)((15 * KaioCharge.charge) + (30 * 1.27)));
+				RFL_SET_PARAM(SonicParametersInfo, forwardView.fly.maxDashSpeed, (float)((30 * KaioCharge.charge) + (130 * 1.135)));
+			}
+			else
+			{
+				RFL_SET_PARAM(SonicParametersInfo, forwardView.fly.maxSpeed, (float)((5 * KaioCharge.charge) + 30));
+				RFL_SET_PARAM(SonicParametersInfo, forwardView.fly.maxDashSpeed, (float)((10 * KaioCharge.charge) + 130));
+			}
+		}
+}

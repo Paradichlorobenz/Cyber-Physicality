@@ -1,0 +1,1459 @@
+Library "Super"
+//
+	public static bool SuperKnuckles = false;
+	public static bool On = false;
+//
+
+Library "Rollin"
+//
+	public static bool Rolling = false;
+//
+
+Code "Character Swapper" in "Gameplay" by "Hyper, Skyth & Gordon Ramsay" does 
+/*
+Allows switching between Sonic, Amy, Knuckles and Tails using hotkeys.
+
+Controller Layout;
+- RS + D-Pad Up - switch to Sonic
+- RS + D-Pad Right - switch to Amy
+- RS + D-Pad Down - switch to Knuckles
+- RS + D-Pad Left - switch to Tails
+
+Keyboard Layout;
+- 1 - switch to Sonic
+- 2 - switch to Amy
+- 3 - switch to Knuckles
+- 4 - switch to Tails
+
+Notes;
+- Whilst the other characters may share states with Sonic, there is still opportunity for the game to crash when using some of Sonic's gimmicks as the other characters.
+- Keep your expectations within reason; don't expect guardians outside of Another Story to work 100% correctly as the other characters, especially event-driven ones like Shark.
+*/
+//
+    #lib "BlackboardItem"
+    #lib "MathHelpers"
+    #lib "PhotoMode"
+    #lib "Player"
+    #lib "XInput"
+	#lib "Time"
+
+    using System.Diagnostics;
+    using System.Runtime.InteropServices;
+
+    [DllImport("user32.dll")]
+    static extern IntPtr GetForegroundWindow();
+
+    static bool _isCharacterUpdate = false;
+    static bool _isAwaitLastRingCount = false;
+
+    static Player.PlayerType _currentPlayer;
+
+    static int _lastRingCount = 50;
+	static int AmylastRingCount = 25;
+	static int KnuckleslastRingCount = 75;
+	static int TailslastRingCount = 3;
+	
+	static float Cooldown = 0;
+
+    static bool IsKeyDown(Keys in_keys)
+    {
+        return (GetAsyncKeyState(in_keys) & 0x8000) != 0;
+    }
+    
+    static bool IsButtonDownSpecial(XInput.Buttons buttons)
+    {
+        if (!XInput.IsButtonDown(XInput.Buttons.Y))
+            return false;
+
+        return XInput.IsButtonDown(buttons);
+    }
+//
+{
+
+	if (Cooldown > 0)
+	{
+		Cooldown -= Time.GetDeltaTime();
+	}
+		
+
+    if (GetForegroundWindow() != Process.GetCurrentProcess().MainWindowHandle)
+        return;
+
+    if (PhotoMode.IsEnabled())
+        return;
+
+    var pBlackboardItem = BlackboardItem.Get();
+
+    if (pBlackboardItem == null)
+        return;
+    
+    /* Wait for new instance of BlackboardItem
+       to set the new ring count. */
+    if (_isAwaitLastRingCount)
+    {
+		if (Player.GetPlayerType() == Player.PlayerType.Sonic)
+		{
+			pBlackboardItem->RingCount = MathHelpers.Clamp(_lastRingCount, 0, pBlackboardItem->RingCapacity);
+		}
+        
+		if (Player.GetPlayerType() == Player.PlayerType.Amy)
+		{
+			pBlackboardItem->RingCount = MathHelpers.Clamp(AmylastRingCount, 0, pBlackboardItem->RingCapacity);
+		}
+		
+		if (Player.GetPlayerType() == Player.PlayerType.Knuckles)
+		{
+			pBlackboardItem->RingCount = MathHelpers.Clamp(KnuckleslastRingCount, 0, pBlackboardItem->RingCapacity);
+		}
+		
+		if (Player.GetPlayerType() == Player.PlayerType.Tails)
+		{
+			pBlackboardItem->RingCount = MathHelpers.Clamp(TailslastRingCount, 0, pBlackboardItem->RingCapacity);
+		}
+        _isAwaitLastRingCount = false;
+    }
+	
+float currentSpeed = Player.Kinematics.GetHorizontalMagnitude();
+
+if (Cooldown <= 0 && currentSpeed == 0)
+{    
+    if (IsKeyDown(Keys.D1) || IsButtonDownSpecial(XInput.Buttons.DPAD_UP))
+    {
+	if (Player.GetPlayerType() != Player.PlayerType.Tails && Player.GetPlayerType() != Player.PlayerType.Amy && Player.GetPlayerType() != Player.PlayerType.Knuckles)
+        return;
+        _currentPlayer = Player.PlayerType.Sonic;
+        _isCharacterUpdate = true;
+		Cooldown = 2;
+    }
+
+    if (IsKeyDown(Keys.D2) || IsButtonDownSpecial(XInput.Buttons.DPAD_RIGHT))
+    {
+	if (Player.GetPlayerType() != Player.PlayerType.Tails && Player.GetPlayerType() != Player.PlayerType.Sonic && Player.GetPlayerType() != Player.PlayerType.Knuckles)
+        return;
+        _currentPlayer = Player.PlayerType.Amy;
+        _isCharacterUpdate = true;
+		Cooldown = 2;
+    }
+
+    if (IsKeyDown(Keys.D3) || IsButtonDownSpecial(XInput.Buttons.DPAD_DOWN))
+    {
+	if (Player.GetPlayerType() != Player.PlayerType.Tails && Player.GetPlayerType() != Player.PlayerType.Amy && Player.GetPlayerType() != Player.PlayerType.Sonic)
+        return;
+        _currentPlayer = Player.PlayerType.Knuckles;
+        _isCharacterUpdate = true;
+		Cooldown = 2;
+    }
+
+    if (IsKeyDown(Keys.D4) || IsButtonDownSpecial(XInput.Buttons.DPAD_LEFT))
+    {
+	if (Player.GetPlayerType() != Player.PlayerType.Sonic && Player.GetPlayerType() != Player.PlayerType.Amy && Player.GetPlayerType() != Player.PlayerType.Knuckles)
+        return;
+        _currentPlayer = Player.PlayerType.Tails;
+        _isCharacterUpdate = true;
+		Cooldown = 2;
+    }
+}
+
+    if (_isCharacterUpdate)
+    {
+	
+        Player.SetPlayerType(_currentPlayer);
+		
+		if (Player.GetPlayerType() == Player.PlayerType.Sonic)
+		{
+			_lastRingCount = pBlackboardItem->RingCount;
+		}
+        
+		if (Player.GetPlayerType() == Player.PlayerType.Amy)
+		{
+			AmylastRingCount = pBlackboardItem->RingCount;
+		}
+		
+		if (Player.GetPlayerType() == Player.PlayerType.Knuckles)
+		{
+			KnuckleslastRingCount = pBlackboardItem->RingCount;
+		}
+		
+		if (Player.GetPlayerType() == Player.PlayerType.Tails)
+		{
+			TailslastRingCount = pBlackboardItem->RingCount;
+		}
+        _isAwaitLastRingCount = true;
+        _isCharacterUpdate = false;
+		var kinematics = Player.Kinematics.Get();
+
+            if (kinematics == null)
+                return;
+
+            kinematics->Velocity = Player.Kinematics.GetForward() * (currentSpeed * 0.75f);
+    }
+}
+
+
+Patch "RFL fix" by "Trepe"
+//
+    #include "Reflection" noemit
+
+    #lib "Reflection"
+    #lib "TailsParameters"
+//
+{
+var TailsParametersInfo = Reflection.GetDataInfo<TailsParameters.Root>("player_common");
+
+    if (TailsParametersInfo.pData == null)
+    return;
+
+    RFL_SET_PARAM(TailsParametersInfo, forwardView.modePackage.speed.normal.min, 0.5f);
+}
+
+Code "[Tails] Increase Altitude on A Hold" in "Gameplay" by "Hyper" does "Allows Tails to fly upwards when holding down the A button."
+//
+    #lib "Player"
+
+    #import "States"
+//
+{
+    if (Player.GetPlayerType() != Player.PlayerType.Tails)
+        return;
+    
+    var kinematics = Player.Kinematics.Get();
+
+    if (kinematics == null)
+        return;
+
+    var pStateTailsFly = Player.State.GetState<StateTailsFly>();
+
+    if (pStateTailsFly == null)
+        return;
+        
+    if (pStateTailsFly->Phase == StateTailsFly.PhaseType.Tired)
+        return;
+
+    if (Player.Input.IsDown(Player.InputActionType.PlayerSonicboom))
+        kinematics->Position.Y += 0.36f;
+		
+	if (Player.Input.IsDown(Player.InputActionType.PlayerBoost))
+        kinematics->Position.Y -= 0.36f;
+}
+
+Code "Disable Double jump" in "Tails"
+//
+    #include "Reflection" noemit
+    #lib "Player"
+//
+
+{	
+	if (Player.GetPlayerType() != Player.PlayerType.Tails)
+        return;
+
+	if (Player.State.GetCurrentStateID<Tails.StateID>() == Tails.StateID.StateDoubleJump)
+	{
+		Player.State.SetState(Tails.StateID.StateTailsFly);
+	}
+}
+Code Disable Double Jump" in "Knuckles"
+//
+	#lib "Player"
+//
+
+{
+	if (Player.GetPlayerType() != Player.PlayerType.Knuckles)
+        return;
+
+	if (Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.StateDoubleJump)
+	{
+		Player.State.SetState(Knuckles.StateID.StateGliding);
+	}
+		
+}
+Code "Boost Related" in "Tails"
+//
+    #include "Reflection" noemit
+	#include "BlackboardStatus" noemit
+	#lib "BlackboardItem"
+	
+    #lib "Player"
+	#lib "Lua"
+	
+	#import "Plugins"
+//
+    
+{	
+	if (Player.GetPlayerType() != Player.PlayerType.Tails)
+        return;
+		
+	var pBlackboardItem = BlackboardItem.Get();
+
+    if (pBlackboardItem == null)
+        return;
+		
+	var kinematics = Player.Kinematics.Get();
+
+    if (kinematics == null)
+        return;
+		
+	var pStatePluginBoost = Player.State.GetStatePlugin<StatePluginBoost>();
+
+    if (pStatePluginBoost == null)
+        return;
+
+    float currentSpeed = Player.Kinematics.GetHorizontalMagnitude();
+	
+	var TailsParametersInfo = Reflection.GetDataInfo<TailsParameters.Root>("tails_common");
+
+	if (TailsParametersInfo.pData == null)
+		return;
+	
+	
+	RFL_SET_PARAM(TailsParametersInfo, forwardView.tailsFly.cruise.duration, (pStatePluginBoost->BoostAmount));
+	if (Player.State.GetCurrentStateID<Tails.StateID>() == Tails.StateID.StateTailsFly && pStatePluginBoost->BoostAmount > 0)
+	{
+		RFL_SET_PARAM(TailsParametersInfo, forwardView.modePackage.boost.recoveryRate, 0);
+		pStatePluginBoost->BoostAmount -= 0.8f;
+	}
+	else if (Player.Status.IsGrounded())
+	{
+		RFL_SET_PARAM(TailsParametersInfo, forwardView.modePackage.boost.recoveryRate, (pStatePluginBoost->BoostCapacity) / 10);
+	}
+	
+	if (!Player.Status.IsGrounded() || Player.State.GetPreviousStateID<Tails.StateID>() == Tails.StateID.StateCycloneAppear || Player.State.GetCurrentStateID<Tails.StateID>() == Tails.StateID.StateCycloneBoost)
+	{
+		RFL_SET_PARAM(TailsParametersInfo, forwardView.modePackage.boost.consumptionRate, 15);
+	}
+	else
+	{
+		RFL_SET_PARAM(TailsParametersInfo, forwardView.modePackage.boost.consumptionRate, 3);
+	}
+	
+	if (Player.State.GetCurrentStateID<Tails.StateID>() == Tails.StateID.StateHomingAttack && pStatePluginBoost->BoostAmount > 1)
+	{
+		pStatePluginBoost->BoostAmount -= 1f;
+	}
+	
+	if (!Player.Status.IsGrounded() &&  pStatePluginBoost->BoostAmount > 1 && Player.State.GetCurrentStateID<Tails.StateID>() == Tails.StateID.StateSpinBoostCharge)
+	{
+		Player.State.SetState(Tails.StateID.StateHomingAttack);
+	}
+	var SpeedLv = Lua.Call<int>("GetSpeedLevel", 0);
+	var ringLv = Lua.Call<int>("GetRingLevel", 0);
+	var PowerLv = Lua.Call<int>("GetPowerLevel", 0);
+	var GuardLv = Lua.Call<int>("GetGuardLevel", 0);
+	pStatePluginBoost->BoostCapacity = ((((ringLv / 2) + (GuardLv / 2)) *  3) + (((SpeedLv / 3) + (PowerLv / 3)) * 2) + 100);
+	
+	if (pBlackboardItem->RingCount <= 1)
+	{
+		Player.State.Redirect(Tails.StateID.StateDamageBlowOff, Tails.StateID.StateDead);
+		Player.State.Redirect(Tails.StateID.StateDamageBlowOffHeavy, Tails.StateID.StateDead);
+	}
+	else
+	{
+		Player.State.Restore(Tails.StateID.StateDamageBlowOff);
+		Player.State.Restore(Tails.StateID.StateDamageBlowOffHeavy);
+	}
+
+}
+
+Code "Stamina Cost" in "Knuckles"
+//
+    #include "Reflection" noemit
+	#include "BlackboardStatus" noemit
+	
+    #lib "Player"
+	#lib "Time"
+	#lib "Lua"
+	
+	#import "Plugins"
+	
+	static bool NoBoost = false;
+	static float GenericTime = 0;
+	static bool DisableRegen = false;
+	
+//
+    
+{	
+	if (Player.GetPlayerType() != Player.PlayerType.Knuckles)
+        return;
+		
+	var pStatePluginBoost = Player.State.GetStatePlugin<StatePluginBoost>();
+
+    if (pStatePluginBoost == null)
+        return;
+		
+	var kinematics = Player.Kinematics.Get();
+
+    if (kinematics == null)
+        return;
+	var KnucklesParametersInfo = Reflection.GetDataInfo<KnucklesParameters.Root>("knuckles_common");
+
+	if (KnucklesParametersInfo.pData == null)
+		return;
+		
+//CyKnuckle Spike
+        if (Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.StateCyKnucklePreFall)
+        {
+            Player.Collision.SetCollisionSphere(Player.CollisionType.Damage, 3.0f);
+            RFL_SET_PARAM(KnucklesParametersInfo, common.commonPackage.attack.spinDash.velocity.Y, -24.0f);
+            RFL_SET_PARAM(KnucklesParametersInfo, common.commonPackage.attack.spinDash.velocity.Z, 0.0f);
+            RFL_SET_PARAM(KnucklesParametersInfo, common.commonPackage.attack.spinDash.velocityKeepTime, 0.01f);
+        }
+        else
+        {
+            RFL_SET_PARAM(KnucklesParametersInfo, common.commonPackage.attack.spinDash.velocity.Y, 5.000001f);
+            RFL_SET_PARAM(KnucklesParametersInfo, common.commonPackage.attack.spinDash.velocity.Z, 20.0f);
+            RFL_SET_PARAM(KnucklesParametersInfo, common.commonPackage.attack.spinDash.velocityKeepTime, 0.66f);
+        }
+
+	if (pStatePluginBoost->BoostAmount < 1)
+	{
+		if (!DisableRegen)
+		{
+			NoBoost = true;
+			DisableRegen = true;
+		}
+	}
+	else if (pStatePluginBoost->BoostAmount > 1)
+	{
+		DisableRegen = false;
+	}
+	
+	if (GenericTime > 1.5)
+	{
+		GenericTime = 0;
+		NoBoost = false;
+	}
+	
+	if (NoBoost)
+	{
+		RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.boost.recoveryRate, 0.0f);
+		GenericTime += Time.GetDeltaTime();
+	}
+	else if (Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.StateAvoid || Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.KnucklesStatePunch1 || Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.KnucklesStatePunch2 || Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.KnucklesStateUppercut)
+	{
+		RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.boost.recoveryRate, 0);
+		
+	}
+	else
+	{
+		RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.boost.recoveryRate, 15);
+		if (Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.StateSpinBoost)
+		{
+			RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.boost.consumptionRate, -6.0f);
+		}
+		else
+		{
+			RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.boost.consumptionRate, 6.0f);
+		}
+	}
+	var ringLv = Lua.Call<int>("GetSpeedLevel", 0);
+	pStatePluginBoost->BoostCapacity = ((ringLv / 4) * 8 + 77);
+}
+
+Code "Homing Attack Over Air Boost for Tails" in "Tails"
+//
+	#lib "Player"
+	#lib "Lua"
+//
+
+{
+	if (Player.GetPlayerType() != Player.PlayerType.Tails)
+        return;
+
+	
+	if (Player.State.GetCurrentStateID<Tails.StateID>() == Tails.StateID.StateTailsFly)
+	{
+		Lua.Call("SetPlayerAbilityEnabled", "Boost", false);
+	}
+	else
+	{
+		Lua.Call("SetPlayerAbilityEnabled", "Boost", true);
+	}
+	
+	if (Player.Status.IsGrounded())
+	{
+		Player.State.Discard(Tails.StateID.StateCycloneAppear);
+		Player.State.Redirect(Tails.StateID.StateCycloneBoost, Tails.StateID.StateRun);
+	}
+	else
+	{
+		Player.State.Restore(Tails.StateID.StateCycloneAppear);
+	}
+}
+
+Code "Speed Required to Boost" in "Tails"
+//
+    #include "Reflection" noemit
+
+    #lib "Player"
+    #lib "Reflection"
+    #lib "SonicParameters"
+	#lib "Time"
+
+    static bool isDash = false;
+
+	static float boostTime = 10.0f;
+//
+{
+	if (Player.GetPlayerType() != Player.PlayerType.Tails)
+        return;
+	
+	var kinematics = Player.Kinematics.Get();
+
+    float currentSpeed = Player.Kinematics.GetHorizontalMagnitude();
+
+    if (Player.State.GetCurrentStateID<Tails.StateID>() == Tails.StateID.StateTailsFly)
+    {
+        Lua.Call("SetPlayerAbilityEnabled", "Boost", false);
+    }
+    else if (currentSpeed > 15.0f || !Player.Status.IsGrounded())
+    {
+		Lua.Call("SetPlayerAbilityEnabled", "Boost", true);
+    }
+	else
+	{
+		Lua.Call("SetPlayerAbilityEnabled", "Boost", false);
+	}
+}
+
+Code "Movement" in "Amy"
+//
+	#lib "Player"
+	#lib "Time"
+	#lib "Lua"
+	static float boosttime = 0;
+	static bool Restore = false;
+	static bool PlayedSound = false;
+//
+
+{
+	if (Player.GetPlayerType() != Player.PlayerType.Amy)
+        return;
+
+	if (Player.State.GetCurrentStateID<Amy.StateID>() == Amy.StateID.StateSpinBoost)
+	{
+		if (boosttime < 3)
+		{
+			boosttime += 0.5f;
+		}
+		
+		if (boosttime >= 3)
+		{
+			Player.State.SetState(Amy.StateID.StateRun);
+		}
+	}
+	else
+	{
+		if (boosttime > 0)
+		{
+			boosttime -= Time.GetDeltaTime();
+		}
+	}
+	
+	if (boosttime <= 0)
+	{
+		if (!Restore && !PlayedSound)
+		{
+			Player.Sound.PlaySound("sn_skateboard_change")
+			PlayedSound = true;
+		}
+		Player.State.Restore(Amy.StateID.StateSpinBoost);
+		Restore = false;
+	}
+	
+	if (boosttime > 3)
+	{
+		Player.State.Discard(Amy.StateID.StateSpinBoost);
+		Restore = true;
+		PlayedSound = false;
+	}
+	
+	
+	Player.State.Discard(Amy.StateID.AmyStateTarotDrift);
+	Player.State.Discard(Amy.StateID.StateSpinBoostCharge);
+	Player.State.Redirect(Amy.StateID.StateHomingAttack, Amy.StateID.StateTarotAttack);
+	Player.State.Redirect(Amy.StateID.StateDoubleJump, Amy.StateID.StatePropellerJump);
+	Player.State.Redirect(Amy.StateID.StateCyHammer, Amy.StateID.StateAirCyHammer);
+	Player.State.Redirect(Amy.StateID.StateParry, Amy.StateID.StateSpinBoost);
+	Lua.Call("SetPlayerAbilityEnabled", "Boost", false);
+}
+
+Code "Super Peelout" in "Tails" by "Weezley" 
+//
+	#include "BlackboardStatus" noemit
+	#include "Reflection" noemit
+
+    #lib "BlackboardStatus"
+    #lib "Memory"
+    #lib "Player"
+    #lib "Reflection"
+	#lib "TailsParameters"
+	#lib "Time"
+
+    static bool IsInitialised = false;
+    static bool IsVelocityAdded = false;
+
+    static long SigSideViewFix = 0;
+
+    static float chargeCount = 0.0f;
+//
+{
+
+	if (Player.GetPlayerType() != Player.PlayerType.Tails)
+        return;
+
+    if (!IsInitialised)
+    {
+        SigSideViewFix = ScanSignature
+        (
+            "\x74\x10\x0F\x28\xCF",
+            "xxxxx"
+        );
+
+        Memory.Preserve(SigSideViewFix, 5);
+
+        IsInitialised = true;
+    }
+
+	bool isCyberSpace = IS_WORLD_FLAG(IsCyberSpace);
+
+    Player.State.Redirect<Tails.StateID>(Tails.StateID.StateSpinBoost, Tails.StateID.StateRun);
+
+    var currentState = Player.State.GetCurrentStateID<Tails.StateID>();
+    var previousState = Player.State.GetPreviousStateID<Tails.StateID>();
+
+    if (!Player.Status.IsGrounded() && isCyberSpace)
+    {
+        Player.State.Discard(Tails.StateID.StateSpinBoostCharge);
+    }
+    else
+    {
+        Player.State.Restore(Tails.StateID.StateSpinBoostCharge);
+    }
+
+    if (!Player.Status.IsGrounded() && !isCyberSpace)
+    {
+        // ?
+    }
+    else
+    {
+        Player.State.Redirect<Tails.StateID>(Tails.StateID.StateSpinBoostCharge, Tails.StateID.StateSpinBoostCharge)
+    }
+
+    if (Player.Status.IsGrounded() && Player.Kinematics.GetHorizontalMagnitude() >= 30.0f) 
+    {
+	    Player.State.Discard(Tails.StateID.StateSpinBoostCharge)
+    }
+
+	if (Player.State.GetCurrentStateID<Tails.StateID>() == Tails.StateID.StateSpinBoostCharge && Player.Input.IsDown(Player.InputActionType.PlayerSonicboom) && chargeCount < 12)
+    {
+		if (Player.Status.IsGrounded())
+		{
+			Player.Animation.SetAnimation("BOOST");
+			Player.Effect.StopAnimationEffects();
+			Player.Animation.SetAnimationParameter("BOOST", (chargeCount / 3 + 2));
+			chargeCount += (Time.GetDeltaTime() * 9);
+			Player.Effect.PlayEffect("boosting", "ec_ft_damage_down01_sa01_shake01");
+		}
+    }
+	
+	if (Player.State.GetCurrentStateID<Tails.StateID>() == Tails.StateID.StateSpinBoostCharge && chargeCount > 12.0f)
+	{
+		chargeCount = 12.0f;
+	}
+	
+    if (previousState == Tails.StateID.StateSpinBoostCharge && currentState == Tails.StateID.StateSpinBoost)
+    {
+        if (!IsVelocityAdded && !isCyberSpace && !Player.Status.IsSideView())
+        {
+            var kinematics = Player.Kinematics.Get();
+
+            if (kinematics == null)
+                return;
+
+            kinematics->Velocity += Player.Kinematics.GetForward() * (chargeCount * 2f + 8.0f);
+
+            IsVelocityAdded = true;
+
+            goto Reset;
+        }
+
+        if (!IsVelocityAdded && isCyberSpace && !Player.Status.IsSideView())
+        {
+            var kinematics = Player.Kinematics.Get();
+
+            if (kinematics == null)
+                return;
+
+            kinematics->Velocity += Player.Kinematics.GetForward() * (chargeCount * 2.5f + 2.5f);
+
+            IsVelocityAdded = true;
+
+            goto Reset;
+        }
+
+	    if (!IsVelocityAdded && Player.Status.IsSideView())
+        {
+            var kinematics = Player.Kinematics.Get();
+
+            if (kinematics == null)
+                return;
+
+            kinematics->Velocity += Player.Kinematics.GetForward() * (chargeCount * 1.0f + 2.5f);
+
+            IsVelocityAdded = true;
+
+            goto Reset;
+        }
+
+    Reset:
+        chargeCount = 0;
+    }
+    else
+    {
+        IsVelocityAdded = false;
+    }
+
+    if (Player.State.GetCurrentStateID<Tails.StateID>() != Tails.StateID.StateSpinBoostCharge)
+    {
+        chargeCount = 0;
+    }
+
+    if (Player.Status.IsSideView())
+    {
+        Memory.WriteForceJump(SigSideViewFix);
+    }
+    else
+    {
+        Memory.Restore(SigSideViewFix);
+    }
+}
+
+Code "Boost is Required for Attacks" in "Knuckles"
+//
+    #lib "Player"
+	#lib "Lua"
+	#lib "Reflection"
+
+    #import "Plugins"
+//
+{
+	if (Player.GetPlayerType() != Player.PlayerType.Knuckles)
+        return;
+
+    var pStatePluginBoost = Player.State.GetStatePlugin<StatePluginBoost>();
+
+    if (pStatePluginBoost == null)
+        return;
+		
+    if (pStatePluginBoost->BoostAmount < 0)
+	{
+		pStatePluginBoost->BoostAmount = 0.0f;
+	}
+	
+	if (pStatePluginBoost->BoostAmount < 1)
+	{
+		if (!Player.Status.IsGrounded())
+		{
+			Player.State.Redirect(Knuckles.StateID.StateCyKnucklePreFall, Knuckles.StateID.StateFall);
+			Player.State.Redirect(Knuckles.StateID.KnucklesStatePunch1, Knuckles.StateID.StateFall);
+			Player.State.Redirect(Knuckles.StateID.KnucklesStatePunch2, Knuckles.StateID.StateFall);
+			Player.State.Redirect(Knuckles.StateID.KnucklesStateUppercut, Knuckles.StateID.StateFall);
+		}
+		else
+		{
+			Player.State.Redirect(Knuckles.StateID.StateCyKnuckle, Knuckles.StateID.StateStand);
+			Player.State.Redirect(Knuckles.StateID.KnucklesStatePunch1, Knuckles.StateID.StateStand);
+			Player.State.Redirect(Knuckles.StateID.KnucklesStatePunch2, Knuckles.StateID.StateStand);
+			Player.State.Redirect(Knuckles.StateID.KnucklesStateUppercut, Knuckles.StateID.StateStand);
+		}
+	}
+	
+	if (pStatePluginBoost->BoostAmount > 0)
+	{
+		if (Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.KnucklesStatePunch1 || Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.KnucklesStatePunch2 || Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.KnucklesStateUppercut || Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.StateMaximumHeatKnuckle || Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.KnucklesStateUppercut || Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.KnucklesStateUppercut)
+		{
+			pStatePluginBoost->BoostAmount -= 1.0f;
+			
+		}
+		if (Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.StateParry)
+		{
+			
+		}
+		
+		if (pStatePluginBoost->BoostAmount > 1)
+		{
+			if (Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.StateCyKnuckle)
+			{
+				pStatePluginBoost->BoostAmount -= 1.5f;
+			}
+			Player.State.Restore(Knuckles.StateID.StateCyKnuckle);
+		}
+		else
+		{
+			Player.State.Redirect(Knuckles.StateID.StateCyKnucklePreFall, Knuckles.StateID.StateFall);
+			Player.State.Redirect(Knuckles.StateID.StateCyKnuckle, Knuckles.StateID.StateStand);
+		}
+		Player.State.Restore(Knuckles.StateID.KnucklesStatePunch1);
+		Player.State.Restore(Knuckles.StateID.KnucklesStatePunch2);
+		Player.State.Restore(Knuckles.StateID.KnucklesStateUppercut);
+		Player.State.Restore(Knuckles.StateID.StateMaximumHeatKnuckle);
+		Player.State.Restore(Knuckles.StateID.StateMaximumHeatKnuckleBounce);
+		Player.State.Restore(Knuckles.StateID.StateMaximumHeatKnuckleBounce);
+	}
+	else
+	{
+		Player.State.Redirect(Knuckles.StateID.KnucklesStatePunch1, Knuckles.StateID.StateStand);
+		Player.State.Redirect(Knuckles.StateID.KnucklesStatePunch2, Knuckles.StateID.StateStand);
+		Player.State.Redirect(Knuckles.StateID.KnucklesStateUppercut, Knuckles.StateID.StateStand);
+		Player.State.Discard(Knuckles.StateID.StateMaximumHeatKnuckle);
+		Player.State.Discard(Knuckles.StateID.StateMaximumHeatKnuckleFollow);
+		Player.State.Discard(Knuckles.StateID.StateMaximumHeatKnuckleBounce);
+		Player.State.Redirect(Knuckles.StateID.StateCyKnucklePreFall, Knuckles.StateID.StateFall);
+		Player.State.Redirect(Knuckles.StateID.StateCyKnuckle, Knuckles.StateID.StateStand);
+	}
+}
+
+Code "Dodge" in "Knuckles"
+//
+	#include "BlackboardStatus" noemit
+
+	#lib "Player"
+	#lib "BlackboardStatus"
+	#lib "Lua"
+	#lib "Time"
+	
+	#import "Plugins"
+	
+	static float Parries = 1;
+	static bool Parried = false;
+	static float Cooldown = 3.8f;
+	static bool Fail = false;
+//
+{
+	if (Player.GetPlayerType() != Player.PlayerType.Knuckles)
+        return;
+
+    var guardLv = Lua.Call<int>("GetGuardLevel", 0);
+
+	Player.State.Discard<Knuckles.StateID>(Knuckles.StateID.StateAvoid);
+	Player.State.Discard<Knuckles.StateID>(Knuckles.StateID.StateParry);
+	Player.State.Discard<Knuckles.StateID>(Knuckles.StateID.StateRightStep);
+
+    var kinematics = Player.Kinematics.Get();
+
+    if (kinematics == null)
+        return;
+		
+	var pStatePluginBoost = Player.State.GetStatePlugin<StatePluginBoost>();
+
+    if (pStatePluginBoost == null)
+        return;
+
+    float currentSpeed = Player.Kinematics.GetHorizontalMagnitude();
+	
+	if (currentSpeed >= 20.0f)
+	{
+	}
+	
+	Player.State.Redirect(Knuckles.StateID.StateSpinBoostCharge, Knuckles.StateID.KnucklesStateStompingDown);
+		
+    if (!IS_WORLD_FLAG(IsCyberSpace))
+    {
+        if (pStatePluginBoost->BoostAmount > 0 && currentSpeed < 30.0f && Player.State.GetCurrentStateID<Knuckles.StateID>() != Knuckles.StateID.StateDamageBlowOff && (Player.Input.IsPressed(Player.InputActionType.PlayerRightStep) && (!Player.Input.IsDown(Player.InputActionType.PlayerLeftStep))))
+        {
+			Player.State.Restore<Knuckles.StateID>(Knuckles.StateID.StateAvoid);
+            Player.State.SetState<Knuckles.StateID>(Knuckles.StateID.StateAvoid);
+        }
+		
+		if (currentSpeed > 30.0f)
+		{
+			Player.State.Restore<Knuckles.StateID>(Knuckles.StateID.StateRightStep);
+		}
+    }
+	
+	if (Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.StateAvoid && pStatePluginBoost->BoostAmount > 0)
+	{
+		pStatePluginBoost->BoostAmount -= 0.5f;
+	}
+	else
+	{
+		if (pStatePluginBoost->BoostAmount > 0)
+		{
+			if (currentSpeed < 20.0f)
+			{
+				Player.State.Restore<Knuckles.StateID>(Knuckles.StateID.StateParry);
+				
+				if (Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.StateParry)
+				{
+					pStatePluginBoost->BoostAmount -= 0.25f;
+				}
+			}
+		}
+		else
+		{
+			Player.State.Discard(Knuckles.StateID.StateParry);
+		}
+		
+		if (Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.StateParry && currentSpeed < 20.0f)
+		{
+			if (!Parried)
+			{
+				Parries--;
+				Parried = true;
+			}
+		}
+		else
+		{
+			Parried = false;
+		}
+		
+		if (Cooldown >= 4)
+		{
+			Cooldown = 0;
+			Parries = (guardLv / 16 + 1);
+
+			if (Fail)
+			{
+				Player.Sound.PlaySound("sn_skateboard_change")
+				Fail = false;
+			}
+		}
+		
+		if (Parries < (guardLv / 16 + 1) && Cooldown < 4)
+		{
+			Cooldown += Time.GetDeltaTime();
+		}
+		
+		if (Parries == 0)
+		{
+			if (!Fail)
+			{
+				Cooldown = 0;
+				Player.Sound.PlaySound("sys_boostgage_overheat")
+			}
+
+			Fail = true;
+		}
+	}
+	
+	Parries = 3;
+}
+
+Code "Infinite Quick Cyloop Gauge" in "Cheats" by "Hyper" 
+//
+    #lib "BlackboardBattle"
+//
+{
+	if (Player.GetPlayerType() != Player.PlayerType.Knuckles)
+        return;
+
+    var pBlackboardBattle = BlackboardBattle.Get();
+
+    if (pBlackboardBattle == null)
+        return;
+
+    pBlackboardBattle->QuickCyloopAmount = 120.0f;
+}
+
+Code "Ring Drops in "Super Speed"
+//
+	#include "Reflection" noemit
+
+	#lib "Player"
+    #lib "Reflection"
+	#lib "SonicParameters"
+//
+{
+	if (Player.GetPlayerType() != Player.PlayerType.Knuckles)
+        return;
+	
+	var KnucklesParametersInfo = Reflection.GetDataInfo<KnucklesParameters.Root>("knuckles_common");
+
+	if (KnucklesParametersInfo.pData == null)
+		return;
+	
+	if (Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.StateCyKnuckle || Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.StateCyKnuckleHideHole || Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.StateCyKnuckleInHole || Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.StateCyKnuckleOutHole || Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.StateCyKnucklePreFall || Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.StateCyKnucklePopupItem || Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.StateCyKnuckleWarp)
+	{
+		RFL_SET_PARAM(KnucklesParametersInfo, common.cyloop.dropItem.num10Rings, 0);
+	}
+	else
+	{
+		RFL_SET_PARAM(KnucklesParametersInfo, common.cyloop.dropItem.num10Rings, 1);
+	}
+}
+
+Code "Tails' Dodge and Cyblast" in "Tails"
+//
+	#include "BlackboardStatus" noemit
+
+	#lib "Player"
+	#lib "BlackboardStatus"
+	#lib "BlackboardBattle"
+	#lib "Lua"
+	#lib "Time"
+	
+	static float Parries = 1;
+	static bool Parried = false;
+	static float Cooldown = 3.8f;
+	static bool Fail = false;
+//
+{
+	if (Player.GetPlayerType() != Player.PlayerType.Tails && Player.GetPlayerType() != Player.PlayerType.Amy)
+        return;
+
+    var guardLv = Lua.Call<int>("GetGuardLevel", 0);
+
+	Player.State.Discard<Tails.StateID>(Tails.StateID.StateAvoid);
+	Player.State.Discard(Tails.StateID.StateParry);
+	
+	Player.State.Discard(Tails.StateID.StateWaveCannon);
+
+    var kinematics = Player.Kinematics.Get();
+
+    if (kinematics == null)
+        return;
+
+    float currentSpeed = Player.Kinematics.GetHorizontalMagnitude();
+	
+	if (currentSpeed >= 20.0f)
+	{
+	}
+		
+    if (!IS_WORLD_FLAG(IsCyberSpace))
+    {
+        if (currentSpeed < 20.0f && Player.State.GetCurrentStateID<Tails.StateID>() != Tails.StateID.StateWaveCannon && Player.State.GetCurrentStateID<Tails.StateID>() != Tails.StateID.StateDamageBlowOff && Player.State.GetCurrentStateID<Tails.StateID>() != Tails.StateID.StateDead && (Player.Input.IsPressed(Player.InputActionType.PlayerRightStep) && (!Player.Input.IsDown(Player.InputActionType.PlayerLeftStep))))
+        {
+			Player.State.Restore<Tails.StateID>(Tails.StateID.StateAvoid);
+            Player.State.SetState<Tails.StateID>(Tails.StateID.StateAvoid);
+        }
+    }
+    if (currentSpeed >= 20.0f && (Player.Input.IsPressed(Player.InputActionType.PlayerRightStep) && (Player.Input.IsPressed(Player.InputActionType.PlayerLeftStep))))
+    {
+		// ?
+    }
+	else
+	{
+		if (Parries > 0)
+		{
+			if (currentSpeed < 20.0f)
+			{
+				Player.State.Restore(Tails.StateID.StateParry);
+				Player.State.Redirect(Tails.StateID.StateParry, Tails.StateID.StateWaveCannon);
+			}
+		}
+		else
+		{
+			Player.State.Discard(Tails.StateID.StateParry);
+		}
+		
+		if (Player.State.GetCurrentStateID<Tails.StateID>() == Tails.StateID.StateParry && currentSpeed < 20.0f)
+		{
+			if (!Parried)
+			{
+				Parries--;
+				Parried = true;
+			}
+		}
+		else
+		{
+			Parried = false;
+		}
+		
+		if (Cooldown >= 30)
+		{
+			Cooldown = 0;
+			Parries = 1);
+
+			if (Fail)
+			{
+				Player.Sound.PlaySound("sn_skateboard_change")
+				Fail = false;
+			}
+		}
+		
+		if (Parries < 1 && Cooldown < 80)
+		{
+			Cooldown += Time.GetDeltaTime();
+		}
+		
+		if (Parries == 0)
+		{
+			if (!Fail)
+			{
+				Cooldown = 0;
+				Player.Sound.PlaySound("sys_boostgage_overheat")
+			}
+
+			Fail = true;
+		}
+	}
+}
+
+Code "Cyloop Regen for Tails" in "Tails"
+//
+    #lib "BlackboardBattle"
+//
+{
+	if (Player.GetPlayerType() != Player.PlayerType.Tails)
+		return;
+
+    var pBlackboardBattle = BlackboardBattle.Get();
+
+    if (pBlackboardBattle == null)
+        return;
+
+	if (pBlackboardBattle->QuickCyloopAmount < 120)
+	{
+		pBlackboardBattle->QuickCyloopAmount += 0.5f;
+	}
+}
+Code "Speed effects" by "Proto"
+//
+    #include "BlackboardStatus" noemit
+    #include "Reflection" noemit
+
+    #lib "BlackboardStatus"
+    #lib "Player"
+    #lib "Reflection"
+    #lib "TailsParameters"
+
+    static bool isDash = false;
+//
+{
+	if (Player.GetPlayerType() != Player.PlayerType.Tails)
+        return;
+
+    float currentSpeed = Player.Kinematics.GetHorizontalMagnitude();
+    
+    if (currentSpeed >= 35.0f)
+    {
+        if (!isDash)
+        {
+			if (!Player.Status.IsSideView())
+			{
+				if (!BlackboardStatus.IsSuper())
+				{
+					Player.Effect.PlayEffect("lightning", "ec_ss_skill_psycho_aura01_linepar01");
+					isDash = true;
+				}
+			}
+        }
+    }
+    else if (currentSpeed <= 40.0f)
+    {
+        Player.Effect.StopEffect("lightning");
+        isDash = false;
+    }
+}
+
+Code "Dynamic speed" in "Super Speed" by "Proto" does "Alters the camera zoom based on player speed."
+//
+    #include "Reflection" noemit
+
+    #lib "Player"
+    #lib "Reflection"
+    #lib "TailsParameters"
+	#lib "Time"
+
+    static bool isDash = false;
+
+	static float boostTime = 0.0f;
+	static float time = 0;
+//
+{
+	if (Player.GetPlayerType() != Player.PlayerType.Tails)
+        return;
+
+	var TailsParametersInfo = Reflection.GetDataInfo<TailsParameters.Root>("tails_common");
+
+    if (TailsParametersInfo.pData == null)
+        return;
+
+    float currentSpeed = Player.Kinematics.GetHorizontalMagnitude();
+    
+    if (currentSpeed >= 45 && boostTime >= 3.0f && IS_STATE_FLAG(IsBoost))
+    {
+        RFL_SET_PARAM(TailsParametersInfo, forwardView.modePackage.speed.deceleSquat, 8.0f);
+		RFL_SET_PARAM(TailsParametersInfo, forwardView.modePackage.speed.acceleSensitive, 20.0f);
+		RFL_SET_PARAM(TailsParametersInfo, forwardView.modePackage.speed.maxGravityAccele, 8.0f);
+		RFL_SET_PARAM(TailsParametersInfo, forwardView.modePackage.speed.maxGravityDecele, 1.0f);
+		RFL_SET_PARAM(TailsParametersInfo, forwardView.modePackage.speed.maxSpeedOver, 90.0f);
+		RFL_SET_PARAM(TailsParametersInfo, forwardView.modePackage.speed.opitonMaxSpeedLimitMin, 70.0f);
+		RFL_SET_PARAM(TailsParametersInfo, forwardView.modePackage.speed.opitonMaxSpeedLimitMax, 90.0f);
+    }
+    else
+    {
+	
+		RFL_SET_PARAM(TailsParametersInfo, forwardView.modePackage.speed.maxSpeedOver, 50.0f);
+		RFL_SET_PARAM(TailsParametersInfo, forwardView.modePackage.speed.opitonMaxSpeedLimitMin, 50.0f);
+		RFL_SET_PARAM(TailsParametersInfo, forwardView.modePackage.speed.opitonMaxSpeedLimitMax, 50.0f)
+        Player.Effect.StopEffect("dash");
+		if (IS_STATE_FLAG(IsBoost))
+		{
+			RFL_SET_PARAM(TailsParametersInfo, forwardView.modePackage.speed.deceleSquat, 3.5f);
+			RFL_SET_PARAM(TailsParametersInfo, forwardView.modePackage.speed.acceleSensitive, 12.0f);
+			RFL_SET_PARAM(TailsParametersInfo, forwardView.modePackage.speed.maxGravityAccele, 2.0f);
+			RFL_SET_PARAM(TailsParametersInfo, forwardView.modePackage.speed.maxGravityDecele, -5.0f);
+			RFL_SET_PARAM(TailsParametersInfo, forwardView.modePackage.speed.turnDeceleAngleMin, 5.0f);
+			RFL_SET_PARAM(TailsParametersInfo, forwardView.modePackage.speed.turnDeceleAngleMax, 45.5f);
+		}
+		else
+		{
+			RFL_SET_PARAM(TailsParametersInfo, forwardView.modePackage.speed.deceleSquat, 2.5f);
+			RFL_SET_PARAM(TailsParametersInfo, forwardView.modePackage.speed.acceleSensitive, 20f);
+			RFL_SET_PARAM(TailsParametersInfo, forwardView.modePackage.speed.maxGravityDecele, -1.75f);
+			RFL_SET_PARAM(TailsParametersInfo, forwardView.modePackage.speed.deceleSquat, 5.0f);
+			
+			if (currentSpeed >= 18 && time < 1)
+			{
+				RFL_SET_PARAM(TailsParametersInfo,forwardView.modePackage.speed.maxGravityAccele, -30.0f);
+			}
+			else
+			{
+				RFL_SET_PARAM(TailsParametersInfo, forwardView.modePackage.speed.maxGravityAccele, 1f);
+			}
+		
+		}
+		;
+
+        isDash = false;
+    }
+	
+	if (Player.State.GetCurrentStateID<Tails.StateID>() == Tails.StateID.StateSpinBoostCharge)
+	{
+		time = 2;
+	}
+	else if (time >=1)
+	{
+		time -= Time.GetDeltaTime();
+	}
+	else
+	{
+		time = 0;
+	}
+	
+	if (Player.State.GetCurrentStateID<Tails.StateID>() != Tails.StateID.StateTailsFly)
+	{
+		if (currentSpeed >= 45.0f && boostTime < 4.0f)
+		{
+			boostTime += Time.GetDeltaTime();
+		}
+
+		if (currentSpeed < 40.0f)
+		{
+			boostTime = 0.0f;
+		}
+	}
+}
+
+Code "Boost effects" in "Super Speed" by "Proto" does "Alters the camera zoom based on player speed."
+//
+    #include "BlackboardStatus" noemit
+    #include "Reflection" noemit
+
+    #lib "BlackboardStatus"
+    #lib "Player"
+    #lib "Reflection"
+    #lib "TailsParameters"
+
+    static bool isDash = false;
+
+	static float boostTime = 0.0f;
+//
+{
+	if (Player.GetPlayerType() != Player.PlayerType.Tails)
+        return;
+
+    float currentSpeed = Player.Kinematics.GetHorizontalMagnitude();
+
+    if (currentSpeed >= 45.0f && boostTime >= 3.0f)
+    {
+        if (!isDash)
+        {
+			if (!Player.Status.IsSideView())
+			{
+				Player.Effect.PlayEffect("boosting", "ec_ss_skill_psycho_aura01_lightning01");
+				isDash = true;
+			}
+        }
+    }
+    else if (currentSpeed <= 45.0f)
+    {
+        Player.Effect.StopEffect("boosting");
+        isDash = false;
+    }
+
+	if (Player.State.GetCurrentStateID<Tails.StateID>() != Tails.StateID.StateTailsFly)
+	{
+		if (currentSpeed >= 45.0f && boostTime < 4.0f)
+		{
+			boostTime += Time.GetDeltaTime();
+		}
+
+		if (currentSpeed < 40.0f)
+		{
+			boostTime = 0.0f;
+		}
+	}
+}
+
+Code "Sonic Boom" in "Super Speed" by "Proto" does "Alters the camera zoom based on player speed."
+//
+    #include "BlackboardStatus" noemit
+    #include "Reflection" noemit
+
+    #lib "BlackboardStatus"
+    #lib "Player"
+    #lib "Reflection"
+    #lib "TailsParameters"
+
+    static bool isDash = false;
+
+	static float boostTime = 0.0f;
+//
+{
+	if (Player.GetPlayerType() != Player.PlayerType.Tails)
+        return;
+
+    float currentSpeed = Player.Kinematics.GetHorizontalMagnitude();
+
+    if (currentSpeed >= 45.0f && boostTime >= 3.0f)
+    {
+        if (!isDash)
+        {
+			if (!Player.Status.IsSideView())
+			{
+				Player.Effect.PlayEffect("boosting", "ec_ft_damage_down01_sa01_shake01");
+				Player.Effect.PlayEffect("boosting", "ec_ft_damage_down01_sa01_shake01");
+				Player.Effect.PlayEffect("boosting", "ec_ft_damage_down01_sa01_shake01");
+				Player.Effect.PlayEffect("boosting", "ec_ft_damage_down01_sa01_shake01");
+				Player.Effect.PlayEffect("boosting", "ec_ft_damage_down01_sa01_shake01");
+				Player.Effect.PlayEffect("boosting", "ec_ft_damage_down01_sa01_shake01");
+				Player.Effect.PlayEffect("boosting", "ec_ft_damage_down01_sa01_shake01");
+				Player.Effect.PlayEffect("boosting", "ec_ft_damage_down01_sa01_shake01");
+				Player.Effect.PlayEffect("boosting", "ec_ft_damage_down01_sa01_shake01");
+				Player.Effect.PlayEffect("boosting", "ec_ft_damage_down01_sa01_shake01");
+				Player.Sound.PlaySound("sn_boost_run")
+
+				isDash = true;
+			}
+        }
+    }
+    else if (currentSpeed <= 45.0f)
+    {
+        Player.Effect.StopEffect("boosting");
+        isDash = false;
+    }
+
+	if (Player.State.GetCurrentStateID<Tails.StateID>() != Tails.StateID.StateTailsFly)
+	{
+		if (currentSpeed >= 45.0f && boostTime < 4.0f)
+		{
+			boostTime += Time.GetDeltaTime();
+		}
+		if (currentSpeed < 40.0f)
+		{
+			boostTime = 0.0f;
+		}
+	}
+}
+
+Code "Roll" in  "Knuckles"
+//
+	#include "Reflection" noemit
+
+	#lib "Player"
+	#lib KnucklesParameters"
+	#lib "Lua"
+	#lib  "Rollin"
+	#lib "Super"
+//
+{
+	if (Player.GetPlayerType() != Player.PlayerType.Knuckles)
+        return;
+		
+	var KnucklesParametersInfo = Reflection.GetDataInfo<KnucklesParameters.Root>("knuckles_common");     
+
+		if (KnucklesParametersInfo.pData == null)													 
+			return;
+		
+	Player.State.Redirect(Knuckles.StateID.StateSpinBoost, Knuckles.StateID.StateRun);
+	
+	if (Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.StateSpinBoost || Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.StateSpinMove)
+	{
+		Rollin.Rolling = true;
+		if (Player.Input.IsDown(Player.InputActionType.PlayerSonicboom))
+		{
+			Player.Animation.SetAnimation("JUMP_BALL");
+		}
+		else
+		{
+			Player.State.SetState(Knuckles.StateID.StateFall);
+		}
+		Lua.Call("SetPlayerAbilityEnabled", "Boost", false);
+		
+		RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.speed.deceleSquat, 18.0f);
+		RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.speed.acceleSensitive, 2.0f);
+		RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.speed.maxGravityAccele, 12.0f);
+		RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.speed.maxGravityDecele, -8.0f);
+		RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.speed.deceleNeutralMin.force, 0.1f);
+		RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.speed.deceleNeutralMin.jerkMin, 0.0f);
+		RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.speed.deceleNeutralMin.jerkMax, 0.0f);
+		
+		RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.speed.normal.min, -30f);
+		RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.speed.normal.max, 1f);
+		RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.speed.normal2.min, -30f);
+		RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.speed.normal2.max, 1f);
+		
+		RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.speed.accele.force, 4f);
+		RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.speed.accele.force2, 4f);
+		RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.speed.accele.damperRange, 4f);
+		RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.speed.accele.jerkMin, 1.5f);
+		RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.speed.accele.jerkMax, 6.0f);
+		
+		RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.speed.decele.force, 4f);
+		RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.speed.decele.force2, 4f);
+		RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.speed.decele.damperRange, 4f);
+		RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.speed.decele.jerkMin, 0.3f);
+		RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.speed.decele.jerkMax, 3.0f);
+		
+		RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.speed.maxSpeedOver, 140.0f);
+		RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.speed.opitonMaxSpeedLimitMin, 90.0f);
+		RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.speed.opitonMaxSpeedLimitMax, 140.0f)
+	}
+	else
+	{
+		Player.Effect.StopAnimationEffects();
+		Lua.Call("SetPlayerAbilityEnabled", "Boost", true);
+		Rollin.Rolling = false;
+		RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.speed.accele.force, 3f);
+		RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.speed.accele.force2, 4f);
+		RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.speed.accele.damperRange, 2f);
+		RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.speed.accele.jerkMin, 0.5f);
+		RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.speed.accele.jerkMax, 200f);
+		
+		RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.speed.decele.force, 1f);
+		RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.speed.decele.force2, 3f);
+		RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.speed.decele.damperRange, 6f);
+		RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.speed.decele.jerkMin, 0.1f);
+		RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.speed.decele.jerkMax, 10f);
+		
+		if (!Super.On)
+		{
+			RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.speed.deceleSquat, 20.0f);
+		RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.speed.acceleSensitive, -4.0f);
+		RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.speed.maxGravityAccele, 4.0f);
+		RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.speed.maxGravityDecele, -5.0f);
+		RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.speed.deceleNeutralMin.force, 500f);
+		RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.speed.deceleNeutralMin.jerkMin, 10.0f);
+		RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.speed.deceleNeutralMin.jerkMax, 200.0f);
+		
+		RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.speed.normal.min, 4f);
+		RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.speed.normal.max, 8f);
+		RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.speed.normal2.min, 4f);
+		RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.speed.normal2.max, 8f);
+		RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.speed.maxSpeedOver, 55.0f);
+		RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.speed.opitonMaxSpeedLimitMin, 45.0f);
+		RFL_SET_PARAM(KnucklesParametersInfo, forwardView.modePackage.speed.opitonMaxSpeedLimitMax, 55.0f)
+		}
+	}
+}

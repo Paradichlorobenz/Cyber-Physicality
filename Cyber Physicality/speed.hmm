@@ -1,0 +1,721 @@
+Code "Cylcone movement" in "Super Speed" by "Proto" does "Alters the camera zoom based on player speed."
+//
+    #include "Reflection" noemit
+
+    #lib "Player"
+    #lib "Reflection"
+    #lib "SonicParameters"
+
+    static bool isDash = false;
+//
+{
+	if (Player.GetPlayerType() != Player.PlayerType.Sonic)
+        return;
+
+	var SonicParametersInfo = Reflection.GetDataInfo<SonicParameters.Root>("player_common");
+
+    if (SonicParametersInfo.pData == null)
+        return;
+
+    float currentSpeed = Player.Kinematics.GetHorizontalMagnitude();
+
+    if (currentSpeed > 0.0f)
+    {
+        if (!isDash)
+        {
+			RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.acceleCombo1.transitNotExistTarget[5], SonicParameters.Action.Root);
+            isDash = true;
+		}
+    }
+    else if (currentSpeed == 0.0f)
+    {
+		if (Player.Status.IsGrounded() && Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateAcceleCombo1)
+		{
+			RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.acceleCombo1.transitNotExistTarget[5], SonicParameters.Action.ChargeAttack);
+			isDash = false;
+		}
+		else
+		{
+			RFL_SET_PARAM(SonicParametersInfo, common.combo.comboTable.acceleCombo1.transitNotExistTarget[5], SonicParameters.Action.Root);
+		}
+    }
+}
+
+Code "After Effects" by "Proto"
+//
+    #include "BlackboardStatus" noemit
+    #include "Reflection" noemit
+
+    #lib "BlackboardStatus"
+    #lib "Player"
+    #lib "Reflection"
+    #lib "SonicParameters"
+
+    static bool isDash = false;
+//
+{
+	if (Player.GetPlayerType() != Player.PlayerType.Sonic)
+        return;
+
+    float currentSpeed = Player.Kinematics.GetHorizontalMagnitude();
+
+    if (currentSpeed >= 50.0f)
+    {
+        if (!isDash)
+        {
+			if (!IS_WORLD_FLAG(IsCyberSpace) && !Player.Status.IsSideView())
+			{
+				if (!BlackboardStatus.IsSuper())
+				{
+					Player.Effect.PlayEffect("after", "ec_ft_pow_dash_ge01_set01");
+					isDash = true;
+				}
+			}
+        }
+    }
+    else if (currentSpeed <= 50.0f)
+    {
+        Player.Effect.StopEffect("after");
+        isDash = false;
+    }
+}
+
+
+Code "Speed effects" by "Proto"
+//
+    #include "BlackboardStatus" noemit
+    #include "Reflection" noemit
+
+    #lib "BlackboardStatus"
+    #lib "Player"
+    #lib "Reflection"
+    #lib "SonicParameters"
+
+    static bool isDash = false;
+//
+{
+	if (Player.GetPlayerType() != Player.PlayerType.Sonic)
+        return;
+
+    float currentSpeed = Player.Kinematics.GetHorizontalMagnitude();
+    
+    if (currentSpeed >= 30.0f)
+    {
+        if (!isDash)
+        {
+			if (!IS_WORLD_FLAG(IsCyberSpace) && !Player.Status.IsSideView())
+			{
+				if (!BlackboardStatus.IsSuper())
+				{
+					Player.Effect.PlayEffect("lightning", "ec_so_skill_psycho_aura01_linepar01");
+					isDash = true;
+				}
+			}
+        }
+    }
+    else if (currentSpeed <= 30.0f)
+    {
+        Player.Effect.StopEffect("lightning");
+        isDash = false;
+    }
+}
+
+Code "Dynamic speed" in "Super Speed" by "Proto" does "Alters the camera zoom based on player speed."
+//
+    #include "Reflection" noemit
+
+    #lib "Player"
+    #lib "Reflection"
+    #lib "SonicParameters"
+
+    static bool isDash = false;
+    static bool isNewRoll = false;
+
+	static float boostTime = 10.0f;
+//
+{
+	if (Player.GetPlayerType() != Player.PlayerType.Sonic)
+        return;
+
+	var SonicParametersInfo = Reflection.GetDataInfo<SonicParameters.Root>("player_common");
+
+    if (SonicParametersInfo.pData == null)
+        return;
+
+    float currentSpeed = Player.Kinematics.GetHorizontalMagnitude();
+    
+	if (isNewRoll)
+	{
+		RFL_SET_PARAM(SonicParametersInfo, forwardView.modePackage.sliding.minSpeed, 0.0f);
+		RFL_SET_PARAM(SonicParametersInfo, forwardView.modePackage.sliding.endSpeed, 0.0f);
+		RFL_SET_PARAM(SonicParametersInfo, forwardView.modePackage.sliding.deceleJerk, 0.0f);
+		RFL_SET_PARAM(SonicParametersInfo, forwardView.modePackage.sliding.deceleJerkContinue, 0.0f);
+		RFL_SET_PARAM(SonicParametersInfo, forwardView.modePackage.sliding.deceleForceMax, -30.0f);
+		RFL_SET_PARAM(SonicParametersInfo, forwardView.modePackage.sliding.gravitySize, -20.0f);
+		RFL_SET_PARAM(SonicParametersInfo, forwardView.modePackage.sliding.minContinueTime, 0.0f);
+		RFL_SET_PARAM(SonicParametersInfo, forwardView.modePackage.sliding.baseRotateForce, 360.0f);
+		RFL_SET_PARAM(SonicParametersInfo, forwardView.modePackage.sliding.maxRotateForce, 360.0f);
+	}
+	
+    if (boostTime >= 3.0f)
+    {
+        if (!isDash)
+        {
+            RFL_SET_PARAM(SonicParametersInfo, forwardView.modePackage.speed.deceleSquat, 30.0f);
+			RFL_SET_PARAM(SonicParametersInfo, forwardView.modePackage.speed.acceleSensitive, 1.0f);
+			RFL_SET_PARAM(SonicParametersInfo, forwardView.modePackage.speed.maxGravityAccele, 25.0f);
+			RFL_SET_PARAM(SonicParametersInfo, forwardView.modePackage.speed.maxGravityDecele, 1.0f);
+			RFL_SET_PARAM(SonicParametersInfo, forwardView.dropDash.steeringSpeed1, 100.0f);
+			RFL_SET_PARAM(SonicParametersInfo, forwardView.dropDash.steeringSpeed2, 100.0f);
+            isDash = true;
+		}
+    }
+    else if (currentSpeed < 70.0f)
+    {
+        Player.Effect.StopEffect("dash");
+
+		RFL_SET_PARAM(SonicParametersInfo, forwardView.modePackage.speed.deceleSquat, 20.0f);
+		RFL_SET_PARAM(SonicParametersInfo, forwardView.modePackage.speed.acceleSensitive, 20.0f);
+		RFL_SET_PARAM(SonicParametersInfo, forwardView.modePackage.speed.maxGravityAccele, 6.0f);
+		RFL_SET_PARAM(SonicParametersInfo, forwardView.modePackage.speed.maxGravityDecele, -5.0f);
+		RFL_SET_PARAM(SonicParametersInfo, forwardView.dropDash.steeringSpeed1, 360.0f);
+		RFL_SET_PARAM(SonicParametersInfo, forwardView.dropDash.steeringSpeed2, 360.0f);
+
+        isDash = false;
+    }
+	
+	if (Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateRun || Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateDropDash)
+	{
+		if (currentSpeed >= 70.0f && boostTime < 4.0f)
+		{
+			boostTime += Time.GetDeltaTime();
+		}
+
+		if (currentSpeed <= 70.0f)
+		{
+			boostTime = 0.0f;
+		}
+	}
+}
+
+Code "Boost effects" in "Super Speed" by "Proto" does "Alters the camera zoom based on player speed."
+//
+    #include "BlackboardStatus" noemit
+    #include "Reflection" noemit
+
+    #lib "BlackboardStatus"
+    #lib "Player"
+    #lib "Reflection"
+    #lib "SonicParameters"
+
+    static bool isDash = false;
+
+	static float boostTime = 10.0f;
+//
+{
+	if (Player.GetPlayerType() != Player.PlayerType.Sonic)
+        return;
+
+    float currentSpeed = Player.Kinematics.GetHorizontalMagnitude();
+
+    if (currentSpeed >= 70.0f && boostTime >= 3.0f)
+    {
+        if (!isDash)
+        {
+			if (!IS_WORLD_FLAG(IsCyberSpace) && !Player.Status.IsSideView())
+			{
+				if (!BlackboardStatus.IsSuper())
+				{
+					Player.Effect.PlayEffect("boosting", "ec_so_skill_psycho_aura01_lightning01");
+					isDash = true;
+				}
+			}
+        }
+    }
+    else if (currentSpeed <= 70.0f)
+    {
+        Player.Effect.StopEffect("boosting");
+        isDash = false;
+    }
+
+	if (Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateRun || Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateDropDash)
+	{
+		if (currentSpeed >= 70.0f && boostTime < 4.0f)
+		{
+			boostTime += Time.GetDeltaTime();
+		}
+
+		if (currentSpeed <= 70.0f)
+		{
+			boostTime = 0.0f;
+		}
+	}
+}
+
+Code "Sonic Boom" in "Super Speed" by "Proto" does "Alters the camera zoom based on player speed."
+//
+    #include "BlackboardStatus" noemit
+    #include "Reflection" noemit
+
+    #lib "BlackboardStatus"
+    #lib "Player"
+    #lib "Reflection"
+    #lib "SonicParameters"
+
+    static bool isDash = false;
+
+	static float boostTime = 10.0f;
+//
+{
+	if (Player.GetPlayerType() != Player.PlayerType.Sonic)
+        return;
+
+    float currentSpeed = Player.Kinematics.GetHorizontalMagnitude();
+
+    if (currentSpeed >= 70.0f && boostTime >= 3.0f)
+    {
+        if (!isDash)
+        {
+			if (!IS_WORLD_FLAG(IsCyberSpace) && !Player.Status.IsSideView())
+			{
+				if (!BlackboardStatus.IsSuper())
+				{
+					if (Player.State.GetCurrentStateID<Sonic.StateID>() != Sonic.StateID.StateLoopKick)
+					{
+						Player.Effect.PlayEffect("boosting", "ec_ft_damage_down01_sa01_shake01");
+						Player.Effect.PlayEffect("boosting", "ec_ft_damage_down01_sa01_shake01");
+						Player.Effect.PlayEffect("boosting", "ec_ft_damage_down01_sa01_shake01");
+						Player.Effect.PlayEffect("boosting", "ec_ft_damage_down01_sa01_shake01");
+						Player.Effect.PlayEffect("boosting", "ec_ft_damage_down01_sa01_shake01");
+						Player.Effect.PlayEffect("boosting", "ec_ft_damage_down01_sa01_shake01");
+						Player.Effect.PlayEffect("boosting", "ec_ft_damage_down01_sa01_shake01");
+						Player.Effect.PlayEffect("boosting", "ec_ft_damage_down01_sa01_shake01");
+						Player.Effect.PlayEffect("boosting", "ec_ft_damage_down01_sa01_shake01");
+						Player.Effect.PlayEffect("boosting", "ec_ft_damage_down01_sa01_shake01");
+
+						Player.Sound.PlaySound("sn_ss_spl_atk_1")
+
+						isDash = true;
+					}
+				}
+			}
+        }
+    }
+    else if (currentSpeed <= 70.0f)
+    {
+        Player.Effect.StopEffect("boosting");
+        isDash = false;
+    }
+
+	if (Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateRun || Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateDropDash)
+	{
+		if (currentSpeed >= 70.0f && boostTime < 4.0f)
+		{
+			boostTime += Time.GetDeltaTime();
+		}
+		if (currentSpeed <= 70.0f)
+		{
+			boostTime = 0.0f;
+		}
+	}
+}
+
+Code "Homing attack kick" in "Super Speed"
+//
+    #lib "Sonic"
+//
+{
+    if (Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateHomingAttack)
+    {
+    }
+}
+
+Code "No Boosting"
+//
+    #include "BlackboardStatus" noemit
+
+	#lib "Lua"
+    #lib "Player"
+
+    static bool IsInitialised = false;
+
+	static float BoostCooldown = 0.0f;
+//
+{
+	if (Player.GetPlayerType() != Player.PlayerType.Sonic)
+        return;
+
+    if (!IsInitialised)
+    {
+        Sonic.StateID NotifyStateRunDamageCollision(Sonic.StateID in_stateId, Sonic.StateID[] in_stateStackTrace)
+        { 
+            if (IS_WORLD_FLAG(IsCyberSpace) && !Player.Status.IsSideView())
+            {
+                bool isStateRun = in_stateId == Sonic.StateID.StateRun;
+                bool isBoost = IS_STATE_FLAG(IsBoost);
+
+                if (!Player.Status.IsGrounded())
+		{
+			Lua.Call("SetPlayerAbilityEnabled", "HomingAttack", true);
+		}
+		else
+		{
+			Lua.Call("SetPlayerAbilityEnabled", "HomingAttack", false);
+		}
+
+                if (BoostCooldown > 0.0f)
+                    BoostCooldown -= 1.0f;
+
+                if (isStateRun && isBoost && Player.Status.IsGrounded())
+                {
+                    BoostCooldown += 40.0f;
+                    Lua.Call("SetPlayerAbilityEnabled", "Boost", false);
+                }
+                else if (BoostCooldown == 0.0f)
+                {
+                    Lua.Call("SetPlayerAbilityEnabled", "Boost", true);
+                }
+            }
+
+            return in_stateId;
+        }
+
+        Player.State.AddStateNotifyAction<Sonic.StateID>(NotifyStateRunDamageCollision);
+
+        IsInitialised = true;
+    }
+
+	if (Player.Status.IsSideView())
+	{
+        Player.State.Discard<Sonic.StateID>(Sonic.StateID.StateLightDash);
+
+        Lua.Call("SetPlayerAbilityEnabled", "HomingAttack", false);
+
+        if (!Player.Status.IsGrounded())
+		{
+			Lua.Call("SetPlayerAbilityEnabled", "Boost", true);
+		}
+		else
+		{
+			Lua.Call("SetPlayerAbilityEnabled", "Boost", false);
+		}
+	}
+
+	if (!IS_WORLD_FLAG(IsCyberSpace) && !Player.Status.IsSideView())
+	{
+		Lua.Call("SetPlayerAbilityEnabled", "Boost", true);
+		
+		if (!Player.Status.IsGrounded())
+		{
+			Lua.Call("SetPlayerAbilityEnabled", "HomingAttack", true);
+		}
+		else
+		{
+			Lua.Call("SetPlayerAbilityEnabled", "HomingAttack", false);
+		}
+	}
+}
+
+Code "Homing kick 1" by "Me" does "Does what it says" 
+//
+	#lib "BlackboardStatus"
+    #lib "Player"
+	
+	static bool home = false;
+//
+{
+	if (Player.GetPlayerType() != Player.PlayerType.Sonic)
+        return;
+
+	var kinematics = Player.Kinematics.Get();
+    
+    if (kinematics == null)
+        return;
+
+	if (Player.Status.IsSideView())
+	{
+		if (Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateHomingAttack)
+		{
+			if (!home)
+				Player.Effect.PlayEffect("home", "ec_so_skill_psycho_aura01_linepar01");
+
+			home = true;
+		}
+		else
+		{
+			Player.Effect.StopEffect("home");
+			home = false;
+		}
+
+		if (Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateAirBoost)
+		{
+			kinematics->Velocity += Player.Kinematics.GetForward() * 20.0f;
+
+			Player.State.SetState<Sonic.StateID>(Sonic.StateID.StateHomingAttack);
+		}
+		
+		if (!Player.Status.IsGrounded())
+		{
+			Player.State.Discard(Sonic.StateID.StateSpinBoostCharge)
+		}
+	}
+}
+
+Code "Keep Speed from Enemy Bounce" by "Weezley"
+//
+    #include "Reflection" noemit
+
+    #lib "Reflection"
+    #lib "SonicParameters"
+//
+{
+	if (Player.GetPlayerType() != Player.PlayerType.Sonic)
+        return;
+
+    var SonicParametersInfo = Reflection.GetDataInfo<SonicParameters.Root>("player_common");
+
+    if (SonicParametersInfo.pData == null)
+        return;
+
+    RFL_SET_CONTEXTUAL_PLAYER_PARAM(SonicParametersInfo, modePackage.spinAttack.deceleForce, 2.5f);
+    RFL_SET_CONTEXTUAL_PLAYER_PARAM(SonicParametersInfo, modePackage.spinAttack.acceleForce, 0.1f);
+    RFL_SET_CONTEXTUAL_PLAYER_PARAM(SonicParametersInfo, modePackage.spinAttack.brakeForce, 0.5f);
+    RFL_SET_CONTEXTUAL_PLAYER_PARAM(SonicParametersInfo, modePackage.spinAttack.limitSpeedMax, 70.0f);
+}
+
+Code "Smash effect" in "My changes" by "Me" does "Does what it says" 
+//
+    #lib "Player"
+	
+	static bool home = false;
+//
+{
+	if (Player.GetPlayerType() != Player.PlayerType.Sonic)
+        return;
+
+	if (Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateSmash)
+	{
+		if (!home)
+        {
+        }
+	}
+	else
+	{
+		Player.Effect.StopEffect("home");
+		home = false;
+	}
+}
+
+Code "Grind Turnaround at low speed" in "Gameplay" by "Weezley" does "Turns Sonic around on a rail if he comes to a stop"
+//
+	#include "BlackboardStatus" noemit
+
+    #lib "Player"
+
+    #load "System.Numerics.dll"
+
+    using System.Numerics;
+//
+{
+	if (Player.GetPlayerType() != Player.PlayerType.Sonic && Player.GetPlayerType() != Player.PlayerType.Amy)
+        return;
+
+    if (Player.State.GetCurrentStateID<Sonic.StateID>() != Sonic.StateID.StateGrind || IS_WORLD_FLAG(IsCyberSpace))
+        return;
+    
+    var kinematics = Player.Kinematics.Get();
+    
+    if (kinematics == null)
+        return;
+    
+    float grindingSpeed = kinematics->Velocity.Length();
+
+    if (grindingSpeed < 6.0f)
+    {
+        kinematics->Rotation *= new Quaternion(-1.0f, 0.0f, 0.0f, 0.0f);
+    }
+}
+
+Code "Grind accelerate" in "Gameplay" by "Weezley" does "Turns Sonic around on a rail if he comes to a stop"
+//
+	#include "Reflection" noemit
+
+    #lib "Player"
+    #lib "Reflection"
+	#lib "SonicParameters"
+//
+{
+	if (Player.GetPlayerType() != Player.PlayerType.Sonic)
+        return;
+
+    if (Player.State.GetCurrentStateID<Sonic.StateID>() != Sonic.StateID.StateGrind)
+        return;
+	
+    var SonicParametersInfo = Reflection.GetDataInfo<SonicParameters.Root>("player_common");
+
+	if (SonicParametersInfo.pData == null)
+		return;
+		
+	if (Player.Input.IsDown(Player.InputActionType.PlayerAttack))
+	{
+		RFL_SET_PARAM(SonicParametersInfo, forwardView.modePackage.grind.acceleForce, 1.5f);
+		RFL_SET_PARAM(SonicParametersInfo, forwardView.modePackage.grind.deceleForce, 3.0f);
+	}
+	else
+	{
+		RFL_SET_PARAM(SonicParametersInfo, forwardView.modePackage.grind.acceleForce, 0.1f);
+		RFL_SET_PARAM(SonicParametersInfo, forwardView.modePackage.grind.deceleForce, 0.01f);
+	}
+
+	RFL_SET_PARAM(SonicParametersInfo, forwardView.modePackage.grind.limitSpeedMin, 5.0f);
+}
+
+Code "Level and Dropdash" in "Super Speed"
+//
+	#include "BlackboardStatus" noemit
+	#include "Reflection" noemit
+
+	#lib "BlackboardStatus"
+    #lib "Lua"
+	#lib "Player"
+    #lib "Reflection"
+	#lib "SonicParameters"
+//
+{
+
+	if (Player.GetPlayerType() != Player.PlayerType.Sonic)
+        return;
+
+    var speedLv = Lua.Call<int>("GetSpeedLevel", 0);
+    var ringLv = Lua.Call<int>("GetRingLevel", 0);
+    var powerLv = Lua.Call<int>("GetPowerLevel", 0);
+    var guardLv = Lua.Call<int>("GetGuardLevel", 0);
+	
+	var SonicParametersInfo = Reflection.GetDataInfo<SonicParameters.Root>("player_common");
+
+	if (SonicParametersInfo.pData == null)
+		return;
+	
+	RFL_SET_PARAM(SonicParametersInfo, forwardView.modePackage.speed.maxSpeedOver, (speedLv * 2.323232323232323f + 50.0f));
+	RFL_SET_PARAM(SonicParametersInfo, forwardView.modePackage.speed.opitonMaxSpeedLimitMin, ( speedLv * 1.161616161616162f + 50.0f));
+	RFL_SET_PARAM(SonicParametersInfo, forwardView.modePackage.speed.opitonMaxSpeedLimitMax, ( speedLv * 2.323232323232323f + 50.0f));
+	
+	if (!Player.Status.IsGrounded())
+	{
+		Player.State.Discard(Sonic.StateID.StateSpinBoostCharge)
+	}
+	if (BlackboardStatus.IsSuper())
+	{
+		RFL_SET_PARAM(SonicParametersInfo, common.cyloop.dropItem.num10Rings, 0);
+	}
+	else if (ringLv == 99)
+	{
+		RFL_SET_PARAM(SonicParametersInfo, common.cyloop.dropItem.num10Rings, 5);
+	}
+	else if (ringLv <= 25)
+	{
+		RFL_SET_PARAM(SonicParametersInfo, common.cyloop.dropItem.num10Rings, 1);
+	}
+	else if (ringLv <= 50)
+	{
+		RFL_SET_PARAM(SonicParametersInfo, common.cyloop.dropItem.num10Rings, 2);
+	}
+	else if (ringLv <= 75)
+	{
+		RFL_SET_PARAM(SonicParametersInfo, common.cyloop.dropItem.num10Rings, 3);
+	}
+	else
+	{
+		RFL_SET_PARAM(SonicParametersInfo, common.cyloop.dropItem.num10Rings, 4);
+	}
+	
+	if (!IS_WORLD_FLAG(IsCyberSpace) && !Player.Status.IsSideView())
+	{
+		if (speedLv >= 10)
+		{
+			Lua.Call("SetPlayerAbilityEnabled", "Boost", true);
+		}
+		else
+		{
+			Lua.Call("SetPlayerAbilityEnabled", "Boost", false);
+		}
+		
+		if (!IS_WORLD_FLAG(IsBattle))
+		{
+			Player.State.Discard<Sonic.StateID>(Sonic.StateID.StateSonicBoomKick);
+		}
+		else
+		{
+			Player.State.Restore<Sonic.StateID>(Sonic.StateID.StateSonicBoomKick);
+		}
+	}
+	
+	if (!Player.Input.IsDown(Player.InputActionType.PlayerSonicboom))
+	{
+		Player.State.Discard<Sonic.StateID>(Sonic.StateID.StateDoubleJump)
+	}
+	else
+	{
+		Player.State.Restore<Sonic.StateID>(Sonic.StateID.StateDoubleJump)
+	}
+	
+	
+}
+
+Code "Dropdash and Spinmove Intertwined" in "Super Speed"
+//
+    #lib "Player"
+
+	static bool state = false;
+//
+{
+	if (Player.GetPlayerType() != Player.PlayerType.Sonic)
+        return;
+		
+    float currentSpeed = Player.Kinematics.GetHorizontalMagnitude();
+
+    if (currentSpeed > 20.0f)
+		state = true;
+    
+	if (currentSpeed < 20.0f)
+		state = false;
+	
+	if (Player.State.GetCurrentStateID<Sonic.StateID>() is Sonic.StateID.StateDropDash or Sonic.StateID.StateSpinMove or Sonic.StateID.StateSpinBoost)
+	{
+		if (!state)
+		{
+			Player.State.SetState<Sonic.StateID>(Sonic.StateID.StateSpinMove);
+		}
+		else
+		{
+			Player.State.SetState<Sonic.StateID>(Sonic.StateID.StateDropDash);
+		}
+	}
+}
+
+Code "Homing attack kick" by "Trepe"
+//
+    #lib "Player"
+//
+{
+    if (Player.State.GetCurrentStateID<Sonic.StateID>() == Sonic.StateID.StateHomingAttack)
+    {
+        Player.Animation.SetAnimation("BOOST_AIR");
+        Player.Effect.StopAnimationEffects();
+    }
+	if (Player.State.GetCurrentStateID<Amy.StateID>() == Amy.StateID.StateHomingAttack)
+    {
+        Player.Animation.SetAnimation("BOOST_AIR");
+        Player.Effect.StopAnimationEffects();
+    }
+	if (Player.State.GetCurrentStateID<Knuckles.StateID>() == Knuckles.StateID.StateHomingAttack)
+    {
+        Player.Animation.SetAnimation("BOOST_AIR");
+        Player.Effect.StopAnimationEffects();
+    }
+	if (Player.State.GetCurrentStateID<Tails.StateID>() == Tails.StateID.StateHomingAttack)
+    {
+        Player.Animation.SetAnimation("BOOST_AIR");
+        Player.Effect.StopAnimationEffects();
+    }
+}
